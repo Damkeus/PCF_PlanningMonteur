@@ -1,0 +1,86 @@
+[
+    {
+        "ID": 1,
+        "ProjectUniqID": "proj-001",
+        "ResourceType": "NxFR",
+        "Fiabilite": "A+",
+        "Commentaire": "Validé"
+    },
+    {
+        "ID": 2,
+        "ProjectUniqID": "proj-002",
+        "ResourceType": "NxFR",
+        "Fiabilite": "A+",
+        "Commentaire": null
+    },
+    {
+        "ID": 3,
+        "ProjectUniqID": "proj-002",
+        "ResourceType": "HTB",
+        "Fiabilite": "A",
+        "Commentaire": "En attente validation HTB"
+    },
+    {
+        "ID": 4,
+        "ProjectUniqID": "proj-003",
+        "ResourceType": "NxFR",
+        "Fiabilite": "A+",
+        "Commentaire": null
+    },
+    {
+        "ID": 5,
+        "ProjectUniqID": "proj-003",
+        "ResourceType": "SCLS",
+        "Fiabilite": "A",
+        "Commentaire": "Validé par SCLS"
+    },
+    {
+        "ID": 6,
+        "ProjectUniqID": "proj-004",
+        "ResourceType": "NxFR",
+        "Fiabilite": "A",
+        "Commentaire": null
+    },
+    {
+        "ID": 7,
+        "ProjectUniqID": "proj-005",
+        "ResourceType": "NxFR",
+        "Fiabilite": "A+",
+        "Commentaire": null
+    },
+    {
+        "ID": 8,
+        "ProjectUniqID": "proj-005",
+        "ResourceType": "HTB",
+        "Fiabilite": "A-",
+        "Commentaire": "Risque de glissement"
+    },
+    {
+        "ID": 9,
+        "ProjectUniqID": "proj-006",
+        "ResourceType": "NxFR",
+        "Fiabilite": "A",
+        "Commentaire": null
+    },
+    {
+        "ID": 10,
+        "ProjectUniqID": "proj-007",
+        "ResourceType": "NxFR",
+        "Fiabilite": "A+",
+        "Commentaire": "Validé"
+    },
+    {
+        "ID": 11,
+        "ProjectUniqID": "proj-008",
+        "ResourceType": "NxFR",
+        "Fiabilite": "A-",
+        "Commentaire": "Budget en discussion"
+    },
+    {
+        "ID": 12,
+        "ProjectUniqID": "proj-009",
+        "ResourceType": "NxFR",
+        "Fiabilite": "Refusé",
+        "Commentaire": "Non confirmé par Elia"
+    }
+]

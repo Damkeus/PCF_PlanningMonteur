@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<manifest>
+  <control namespace="Nexans" constructor="PlanningMonteurs" version="0.0.1" display-name-key="PlanningMonteurs" description-key="Planning Monteurs Nexans - Gantt hebdomadaire" control-type="standard">
+    <external-service-usage enabled="false">
+    </external-service-usage>
+
+    <!-- INPUT: JSON data from Power Apps ClearCollect -->
+    <property name="planningData" display-name-key="Planning Data" description-key="JSON array of PlanningAffectation records" of-type="Multiple" usage="input" required="false" />
+    <property name="capaciteData" display-name-key="Capacite Data" description-key="JSON array of PlanningCapacite records" of-type="Multiple" usage="input" required="false" />
+    <property name="ficheChantierData" display-name-key="Fiche Chantier Data" description-key="JSON array of FicheChantier records" of-type="Multiple" usage="input" required="false" />
+    <property name="fiabiliteData" display-name-key="Fiabilite Data" description-key="JSON array of PlanningFiabilite records" of-type="Multiple" usage="input" required="false" />
+    <property name="monteursData" display-name-key="Monteurs Data" description-key="JSON array of Monteur records" of-type="Multiple" usage="input" required="false" />
+
+    <!-- INPUT: Configuration -->
+    <property name="currentYear" display-name-key="Current Year" description-key="Year to display" of-type="Whole.None" usage="input" required="false" />
+    <property name="currentWeek" display-name-key="Current Week" description-key="Current week number (1-53)" of-type="Whole.None" usage="input" required="false" />
+    <property name="userRole" display-name-key="User Role" description-key="admin or viewer" of-type="SingleLine.Text" usage="input" required="false" />
+    <property name="selectedPMFilter" display-name-key="PM Filter" description-key="ALL, JC, GP, DW, VB, HMC, ALL_HMC" of-type="SingleLine.Text" usage="input" required="false" />
+    <property name="availableYears" display-name-key="Available Years" description-key="JSON array of available years" of-type="Multiple" usage="input" required="false" />
+    <property name="availablePMs" display-name-key="Available PMs" description-key="JSON array of available PM codes" of-type="Multiple" usage="input" required="false" />
+
+    <!-- OUTPUT: Events emitted back to Power Apps -->
+    <property name="onSaveAffectation" display-name-key="On Save Affectation" description-key="JSON of saved affectation record" of-type="Multiple" usage="output" />
+    <property name="onSaveCapacite" display-name-key="On Save Capacite" description-key="JSON of saved capacite record" of-type="Multiple" usage="output" />
+    <property name="onSaveFiabilite" display-name-key="On Save Fiabilite" description-key="JSON of saved fiabilite record" of-type="Multiple" usage="output" />
+    <property name="onDeleteAffectation" display-name-key="On Delete Affectation" description-key="JSON with ID of record to delete" of-type="Multiple" usage="output" />
+    <property name="eventName" display-name-key="Event Name" description-key="Name of the last event emitted" of-type="SingleLine.Text" usage="output" />
+
+    <resources>
+      <code path="index.ts" order="1"/>
+      <css path="styles/planning.css" order="1" />
+    </resources>
+  </control>
+</manifest>

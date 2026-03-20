@@ -1,0 +1,110 @@
+[
+    {
+        "ProjectUniqID": "proj-001",
+        "Title": "ARCOMIE ST FLOUR SIPHON A75",
+        "NumProjet": "FR-H34147",
+        "Tension_kV": 90,
+        "Section_mm2": 1200,
+        "Ame": "Al",
+        "Longueur_m": 3200,
+        "PM": "JC",
+        "Year": 2026,
+        "CDC": true
+    },
+    {
+        "ProjectUniqID": "proj-002",
+        "Title": "PTF BEUVRY CORSICA",
+        "NumProjet": "FR-H34155",
+        "Tension_kV": 225,
+        "Section_mm2": 2500,
+        "Ame": "Cu",
+        "Longueur_m": 8500,
+        "PM": "JC",
+        "Year": 2026,
+        "CDC": true
+    },
+    {
+        "ProjectUniqID": "proj-003",
+        "Title": "LILLE NORD EXTENSION RTE",
+        "NumProjet": "FR-H34201",
+        "Tension_kV": 400,
+        "Section_mm2": 2500,
+        "Ame": "Cu",
+        "Longueur_m": 12000,
+        "PM": "GP",
+        "Year": 2026,
+        "CDC": true
+    },
+    {
+        "ProjectUniqID": "proj-004",
+        "Title": "MARSEILLE ENEDIS PHASE 2",
+        "NumProjet": "FR-H34189",
+        "Tension_kV": 90,
+        "Section_mm2": 630,
+        "Ame": "Al",
+        "Longueur_m": 1800,
+        "PM": "GP",
+        "Year": 2026,
+        "CDC": true
+    },
+    {
+        "ProjectUniqID": "proj-005",
+        "Title": "LYON PART-DIEU SOUTERRAIN",
+        "NumProjet": "FR-H34210",
+        "Tension_kV": 225,
+        "Section_mm2": 1600,
+        "Ame": "Cu",
+        "Longueur_m": 5600,
+        "PM": "DW",
+        "Year": 2026,
+        "CDC": true
+    },
+    {
+        "ProjectUniqID": "proj-006",
+        "Title": "STRASBOURG RTE NORD",
+        "NumProjet": "FR-H34222",
+        "Tension_kV": 90,
+        "Section_mm2": 1200,
+        "Ame": "Al",
+        "Longueur_m": 2400,
+        "PM": "DW",
+        "Year": 2026,
+        "CDC": true
+    },
+    {
+        "ProjectUniqID": "proj-007",
+        "Title": "BORDEAUX MERIGNAC PHASE 3",
+        "NumProjet": "FR-H34235",
+        "Tension_kV": 225,
+        "Section_mm2": 2000,
+        "Ame": "Cu",
+        "Longueur_m": 7200,
+        "PM": "VB",
+        "Year": 2026,
+        "CDC": true
+    },
+    {
+        "ProjectUniqID": "proj-008",
+        "Title": "USA TERNA SUBMARINE CABLE",
+        "NumProjet": "INT-X0012",
+        "Tension_kV": 400,
+        "Section_mm2": 2500,
+        "Ame": "Cu",
+        "Longueur_m": 45000,
+        "PM": null,
+        "Year": 2026,
+        "CDC": false
+    },
+    {
+        "ProjectUniqID": "proj-009",
+        "Title": "BELGIQUE ELIA GRID CONNECT",
+        "NumProjet": "INT-X0015",
+        "Tension_kV": 225,
+        "Section_mm2": 1600,
+        "Ame": "Al",
+        "Longueur_m": 6000,
+        "PM": null,
+        "Year": 2026,
+        "CDC": false
+    }
+]

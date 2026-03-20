@@ -1,0 +1,2150 @@
+/* ============================================================
+   Planning Monteurs PCF — Nexans
+   Modern planning UI inspired by Linear/Notion/Monday.com
+   ============================================================ */
+
+/* === RESET & BASE === */
+.pm-app {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 13px;
+    color: #1A1A1A;
+    background: #FAFAFA;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+}
+
+.pm-app *,
+.pm-app *::before,
+.pm-app *::after {
+    box-sizing: border-box;
+}
+
+/* ============================================================
+   HEADER — App bar
+   ============================================================ */
+.pm-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    min-height: 52px;
+    background: #000000;
+    color: #FFFFFF;
+    padding: 0 20px;
+    z-index: 100;
+    border-bottom: 3px solid #FF1910;
+}
+
+.pm-header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.pm-header-brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.pm-header-logo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pm-header-logo-block {
+    width: 22px;
+    height: 22px;
+    background: #FF1910;
+    border-radius: 3px;
+}
+
+.pm-header-logo-text {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #FFFFFF;
+}
+
+.pm-header-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.85);
+    padding-left: 16px;
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.pm-header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pm-header-control {
+    position: relative;
+}
+
+.pm-header-select {
+    appearance: none;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: #FFFFFF;
+    padding: 6px 32px 6px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.15s ease;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23fff' opacity='0.7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+}
+
+.pm-header-select:hover {
+    background-color: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
+.pm-header-select:focus {
+    border-color: #FF1910;
+    box-shadow: 0 0 0 2px rgba(255, 25, 16, 0.3);
+}
+
+.pm-header-select option {
+    background: #1A1A1A;
+    color: #FFFFFF;
+}
+
+.pm-header-week-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #FF1910;
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-weight: 600;
+}
+
+.pm-header-week-badge-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.9;
+}
+
+.pm-header-week-badge-number {
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.pm-header-role-badge {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    padding: 3px 8px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* ============================================================
+   SEPARATOR
+   ============================================================ */
+.pm-separator {
+    height: 1px;
+    background: linear-gradient(to right, transparent, #E0E0E0 10%, #E0E0E0 90%, transparent);
+    margin: 0;
+}
+
+/* ============================================================
+   CAPACITÉ GRID — Capacity summary header
+   ============================================================ */
+.pm-capacite-grid {
+    background: #FFFFFF;
+    border-bottom: 1px solid #E8E8E8;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.pm-capacite-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #9E9E9E;
+    padding: 8px 20px 4px;
+}
+
+.pm-capacite-row {
+    display: flex;
+    align-items: stretch;
+    min-height: 30px;
+    border-bottom: 1px solid #F0F0F0;
+}
+
+.pm-capacite-row:last-of-type {
+    border-bottom: 1px solid #E0E0E0;
+}
+
+.pm-capacite-row-left {
+    width: 300px;
+    min-width: 300px;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    background: #FFFFFF;
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    border-right: 1px solid #E8E8E8;
+}
+
+.pm-capacite-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #616161;
+}
+
+.pm-capacite-row-right {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    display: flex;
+    scrollbar-width: none;
+}
+
+.pm-capacite-row-right::-webkit-scrollbar {
+    display: none;
+}
+
+.pm-capacite-cell {
+    width: 48px;
+    min-width: 48px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: default;
+    border-right: 1px solid #F5F5F5;
+    transition: background-color 0.1s ease;
+}
+
+.pm-capacite-cell:hover {
+    filter: brightness(0.97);
+}
+
+.pm-capacite-cell--current {
+    border-left: 2px solid #FF1910;
+    background: rgba(255, 25, 16, 0.04) !important;
+}
+
+.pm-capacite-value {
+    font-size: 12px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+}
+
+.pm-capacite-value--bold {
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.pm-capacite-input {
+    width: 40px;
+    height: 24px;
+    border: none;
+    border-bottom: 2px solid #FF1910;
+    background: transparent;
+    text-align: center;
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: 600;
+    color: #1A1A1A;
+    outline: none;
+    -moz-appearance: textfield;
+}
+
+.pm-capacite-input::-webkit-inner-spin-button,
+.pm-capacite-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* ============================================================
+   PLANNING GRID — Main planning area
+   ============================================================ */
+.pm-planning-grid {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* Grid header area (PROJETS label + week header) */
+.pm-grid-header-area {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid #E0E0E0;
+    background: #FFFFFF;
+    flex-shrink: 0;
+}
+
+.pm-grid-header-left {
+    width: 300px;
+    min-width: 300px;
+    display: flex;
+    align-items: flex-end;
+    padding: 8px 20px;
+    background: #FFFFFF;
+    border-right: 1px solid #E8E8E8;
+    position: sticky;
+    left: 0;
+    z-index: 10;
+}
+
+.pm-grid-header-left-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #9E9E9E;
+}
+
+.pm-grid-header-right {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+}
+
+.pm-grid-header-right::-webkit-scrollbar {
+    display: none;
+}
+
+/* Week Header */
+.pm-week-header {
+    display: flex;
+    flex-direction: column;
+}
+
+.pm-week-header-row {
+    display: flex;
+}
+
+.pm-week-header-months {
+    display: flex;
+}
+
+.pm-week-header-month {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #424242;
+    height: 22px;
+    border-right: 1px solid #E0E0E0;
+    background: #F8F8F8;
+}
+
+.pm-week-header-weeks {
+    display: flex;
+}
+
+.pm-week-header-week {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: #616161;
+    height: 22px;
+    border-right: 1px solid #F0F0F0;
+}
+
+.pm-week-header-week--current {
+    color: #FF1910;
+    font-weight: 700;
+    background: rgba(255, 25, 16, 0.06);
+}
+
+.pm-week-header-dates {
+    display: flex;
+}
+
+.pm-week-header-date {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #9E9E9E;
+    height: 18px;
+    border-right: 1px solid #F5F5F5;
+}
+
+.pm-week-header-date--current {
+    color: #FF1910;
+    font-weight: 600;
+}
+
+/* Grid body */
+.pm-grid-body {
+    flex: 1;
+    overflow: auto;
+    min-height: 0;
+}
+
+.pm-grid-body-inner {
+    min-height: 100%;
+}
+
+/* Empty state */
+.pm-grid-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: #9E9E9E;
+}
+
+.pm-grid-empty-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+    opacity: 0.5;
+}
+
+.pm-grid-empty-text {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.pm-grid-empty-hint {
+    font-size: 13px;
+    color: #BDBDBD;
+}
+
+/* ============================================================
+   PROJECT ROW
+   ============================================================ */
+.pm-project-row {
+    border-bottom: 1px solid #F0F0F0;
+}
+
+.pm-project-row:nth-child(even) {
+    background: #FAFAFA;
+}
+
+.pm-project-row--expanded {
+    border-bottom: 1px solid #E0E0E0;
+}
+
+.pm-project-header {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 8px 0;
+    cursor: pointer;
+    transition: background-color 0.1s ease;
+}
+
+.pm-project-header:hover {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.pm-project-header-left {
+    width: 300px;
+    min-width: 300px;
+    display: flex;
+    align-items: flex-start;
+    padding: 0 12px 0 16px;
+    position: sticky;
+    left: 0;
+    z-index: 5;
+    background: inherit;
+}
+
+.pm-project-expand-icon {
+    font-size: 12px;
+    color: #9E9E9E;
+    margin-right: 8px;
+    margin-top: 2px;
+    width: 14px;
+    flex-shrink: 0;
+}
+
+.pm-project-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.pm-project-title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.pm-project-id {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1A1A1A;
+    white-space: nowrap;
+}
+
+.pm-project-title {
+    font-size: 12px;
+    color: #616161;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pm-project-specs {
+    font-size: 11px;
+    color: #9E9E9E;
+    margin-top: 2px;
+}
+
+/* ============================================================
+   RESOURCE ROW
+   ============================================================ */
+.pm-resource-row {
+    display: flex;
+    align-items: stretch;
+    min-height: 36px;
+    border-top: 1px solid #F5F5F5;
+}
+
+.pm-resource-row-left {
+    width: 300px;
+    min-width: 300px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px 0 40px;
+    gap: 8px;
+    position: sticky;
+    left: 0;
+    z-index: 5;
+    background: inherit;
+    border-right: 1px solid #E8E8E8;
+}
+
+.pm-resource-type-indicator {
+    width: 3px;
+    height: 18px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.pm-resource-type-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #424242;
+}
+
+.pm-resource-row-right {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+/* ============================================================
+   WEEK CELL — Individual Gantt cell
+   ============================================================ */
+.pm-week-cell {
+    width: 48px;
+    min-width: 48px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border-right: 1px solid #F5F5F5;
+    transition: all 0.1s ease;
+}
+
+.pm-week-cell--admin {
+    cursor: pointer;
+}
+
+.pm-week-cell--admin:hover {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.pm-week-cell--current {
+    border-left: 2px solid #FF1910;
+    background: rgba(255, 25, 16, 0.03);
+}
+
+.pm-week-cell-current-indicator {
+    position: absolute;
+    left: -1px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #FF1910;
+    z-index: 1;
+}
+
+.pm-week-cell-value {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 28px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    transition: all 0.15s ease;
+}
+
+.pm-week-cell--admin .pm-week-cell-value:hover {
+    filter: brightness(0.92);
+    transform: scale(1.04);
+}
+
+.pm-week-cell-empty-indicator {
+    font-size: 16px;
+    color: #E0E0E0;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.pm-week-cell--admin:hover .pm-week-cell-empty-indicator {
+    opacity: 1;
+}
+
+.pm-week-cell-input {
+    width: 38px;
+    height: 28px;
+    border: none;
+    border-bottom: 2px solid #FF1910;
+    background: rgba(255, 25, 16, 0.04);
+    border-radius: 4px 4px 0 0;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    color: #1A1A1A;
+    outline: none;
+    -moz-appearance: textfield;
+}
+
+.pm-week-cell-input::-webkit-inner-spin-button,
+.pm-week-cell-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* ============================================================
+   COMMENT PASTILLE (DOT)
+   ============================================================ */
+.pm-comment-dot {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #FF9800;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    z-index: 3;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.8);
+}
+
+.pm-comment-dot:hover {
+    transform: scale(1.6);
+    box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.3);
+}
+
+.pm-comment-dot--add {
+    background: #E0E0E0;
+    opacity: 0;
+}
+
+.pm-week-cell--admin:hover .pm-comment-dot--add {
+    opacity: 0.6;
+}
+
+.pm-comment-dot--add:hover {
+    opacity: 1 !important;
+    background: #FF9800;
+}
+
+.pm-comment-dot--capacite {
+    top: 2px;
+    right: 2px;
+    width: 5px;
+    height: 5px;
+}
+
+/* ============================================================
+   TOOLTIP — Comment hover popup
+   ============================================================ */
+.pm-tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    right: -8px;
+    z-index: 1000;
+    background: #1A1A1A;
+    opacity: 0.95;
+    border-radius: 8px;
+    padding: 8px 12px;
+    max-width: 250px;
+    min-width: 80px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    animation: pm-tooltip-fadein 0.15s ease;
+    pointer-events: none;
+}
+
+.pm-tooltip-content {
+    font-size: 12px;
+    color: #FFFFFF;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.pm-tooltip-arrow {
+    position: absolute;
+    bottom: -4px;
+    right: 12px;
+    width: 8px;
+    height: 8px;
+    background: #1A1A1A;
+    transform: rotate(45deg);
+}
+
+@keyframes pm-tooltip-fadein {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================================
+   COMMENT EDITOR — Inline micro-editor
+   ============================================================ */
+.pm-comment-editor-container {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 200;
+}
+
+.pm-comment-editor {
+    background: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    width: 260px;
+    animation: pm-editor-slidein 0.2s ease;
+}
+
+.pm-comment-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+
+.pm-comment-tag {
+    background: #F0F0F0;
+    border: 1px solid #E0E0E0;
+    border-radius: 16px;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-family: inherit;
+    color: #424242;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    outline: none;
+}
+
+.pm-comment-tag:hover {
+    background: #E0E0E0;
+    border-color: #BDBDBD;
+}
+
+.pm-comment-tag:active {
+    background: #D0D0D0;
+}
+
+.pm-comment-input {
+    width: 100%;
+    border: 1px solid #E0E0E0;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-family: inherit;
+    color: #1A1A1A;
+    resize: none;
+    outline: none;
+    transition: border-color 0.15s ease;
+}
+
+.pm-comment-input:focus {
+    border-color: #FF1910;
+    box-shadow: 0 0 0 2px rgba(255, 25, 16, 0.1);
+}
+
+.pm-comment-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.pm-comment-save,
+.pm-comment-cancel {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.1s ease;
+}
+
+.pm-comment-save {
+    background: #2E7D32;
+    color: #FFFFFF;
+}
+
+.pm-comment-save:hover {
+    background: #1B5E20;
+}
+
+.pm-comment-cancel {
+    background: #F0F0F0;
+    color: #616161;
+}
+
+.pm-comment-cancel:hover {
+    background: #E0E0E0;
+}
+
+.pm-comment-editor-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 150;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes pm-editor-slidein {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================================
+   FIABILITÉ BADGE
+   ============================================================ */
+.pm-fiabilite-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    padding: 1px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    min-width: 24px;
+    height: 18px;
+    white-space: nowrap;
+    cursor: default;
+    transition: transform 0.1s ease;
+}
+
+.pm-fiabilite-badge:hover {
+    transform: scale(1.05);
+}
+
+/* ============================================================
+   ADD PROJECT ROW
+   ============================================================ */
+/* Save button in header (appears when projects shifted) */
+.pm-save-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    background: rgba(39, 174, 96, 0.25);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    padding: 0;
+    animation: pm-save-pulse 1.5s ease infinite;
+}
+
+.pm-save-btn:hover {
+    background: rgba(39, 174, 96, 0.45);
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+}
+
+.pm-save-btn:active {
+    transform: scale(0.92);
+}
+
+.pm-save-btn-icon {
+    font-size: 16px;
+}
+
+@keyframes pm-save-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.3); }
+    50% { box-shadow: 0 0 0 4px rgba(39, 174, 96, 0); }
+}
+
+/* Zoom control in header */
+.pm-zoom-control {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pm-zoom-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 80px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+}
+
+.pm-zoom-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    background: #FFFFFF;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.pm-zoom-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    background: #FFFFFF;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.pm-zoom-label {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.65);
+    white-space: nowrap;
+    min-width: 45px;
+}
+
+.pm-add-project-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    color: #9E9E9E;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border-top: 1px dashed #E0E0E0;
+    margin-top: 4px;
+}
+
+.pm-add-project-row:hover {
+    color: #FF1910;
+    background: rgba(255, 25, 16, 0.03);
+}
+
+.pm-add-project-icon {
+    font-size: 18px;
+    font-weight: 300;
+    width: 24px;
+    height: 24px;
+    border: 1px dashed currentColor;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.pm-add-project-label {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* ============================================================
+   PANEL — Side drawer
+   ============================================================ */
+.pm-panel-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 500;
+    animation: pm-overlay-fadein 0.2s ease;
+}
+
+.pm-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 420px;
+    background: #FFFFFF;
+    box-shadow: -8px 0 32px rgba(0, 0, 0, 0.12);
+    z-index: 501;
+    display: flex;
+    flex-direction: column;
+    animation: pm-panel-slidein 0.3s ease;
+}
+
+.pm-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid #E8E8E8;
+}
+
+.pm-panel-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1A1A1A;
+    margin: 0;
+}
+
+.pm-panel-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: #F5F5F5;
+    border-radius: 6px;
+    font-size: 16px;
+    color: #616161;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.1s ease;
+}
+
+.pm-panel-close:hover {
+    background: #E0E0E0;
+    color: #1A1A1A;
+}
+
+.pm-panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+}
+
+.pm-panel-field {
+    margin-bottom: 20px;
+}
+
+.pm-panel-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #616161;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.pm-panel-select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+    color: #1A1A1A;
+    background: #FAFAFA;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+}
+
+.pm-panel-select:focus {
+    border-color: #FF1910;
+    box-shadow: 0 0 0 2px rgba(255, 25, 16, 0.1);
+}
+
+.pm-panel-project-info {
+    background: #F8F8F8;
+    border: 1px solid #E8E8E8;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+}
+
+.pm-panel-info-row {
+    display: flex;
+    gap: 8px;
+    font-size: 12px;
+    margin-bottom: 4px;
+}
+
+.pm-panel-info-row:last-child {
+    margin-bottom: 0;
+}
+
+.pm-panel-info-label {
+    font-weight: 600;
+    color: #616161;
+    min-width: 60px;
+}
+
+.pm-panel-info-value {
+    color: #1A1A1A;
+}
+
+.pm-panel-resource-types,
+.pm-panel-fiabilite-options {
+    display: flex;
+    gap: 8px;
+}
+
+.pm-panel-resource-btn,
+.pm-panel-fiabilite-btn {
+    padding: 6px 16px;
+    border: 2px solid;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    outline: none;
+}
+
+.pm-panel-resource-btn:hover,
+.pm-panel-fiabilite-btn:hover {
+    filter: brightness(0.95);
+    transform: translateY(-1px);
+}
+
+.pm-panel-textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+    color: #1A1A1A;
+    background: #FAFAFA;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s ease;
+}
+
+.pm-panel-textarea:focus {
+    border-color: #FF1910;
+    box-shadow: 0 0 0 2px rgba(255, 25, 16, 0.1);
+}
+
+.pm-panel-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 24px;
+    border-top: 1px solid #E8E8E8;
+}
+
+.pm-panel-btn-cancel {
+    padding: 8px 20px;
+    border: 1px solid #E0E0E0;
+    background: #FFFFFF;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    color: #616161;
+    cursor: pointer;
+    transition: all 0.1s ease;
+}
+
+.pm-panel-btn-cancel:hover {
+    background: #F5F5F5;
+}
+
+.pm-panel-btn-save {
+    padding: 8px 24px;
+    border: none;
+    background: #FF1910;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    color: #FFFFFF;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.pm-panel-btn-save:hover:not(:disabled) {
+    background: #E0160E;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(255, 25, 16, 0.3);
+}
+
+.pm-panel-btn-save:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@keyframes pm-panel-slidein {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes pm-overlay-fadein {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* ============================================================
+   TOAST — Save notification
+   ============================================================ */
+.pm-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #2E7D32;
+    color: #FFFFFF;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 4px 16px rgba(46, 125, 50, 0.3);
+    z-index: 999;
+    animation: pm-toast-slidein 0.3s ease, pm-toast-fadeout 0.3s ease 1.7s forwards;
+}
+
+.pm-toast-icon {
+    font-size: 16px;
+}
+
+@keyframes pm-toast-slidein {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes pm-toast-fadeout {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+/* ============================================================
+   SCROLLBAR STYLING
+   ============================================================ */
+.pm-grid-body::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.pm-grid-body::-webkit-scrollbar-track {
+    background: #F5F5F5;
+}
+
+.pm-grid-body::-webkit-scrollbar-thumb {
+    background: #BDBDBD;
+    border-radius: 4px;
+}
+
+.pm-grid-body::-webkit-scrollbar-thumb:hover {
+    background: #9E9E9E;
+}
+
+/* ============================================================
+   PROJECT STATUS CARD — Color badge on project header
+   ============================================================ */
+.pm-project-status-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 10px 2px 7px;
+    border-radius: 6px;
+    border: 1.5px solid;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+    letter-spacing: 0.2px;
+}
+
+.pm-project-status-card:hover {
+    filter: brightness(0.95);
+    transform: scale(1.02);
+}
+
+.pm-project-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    animation: pm-status-pulse 2s ease-in-out infinite;
+}
+
+@keyframes pm-status-pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* ============================================================
+   COMMENT MINI-CARD — Improved comment display
+   ============================================================ */
+.pm-comment-card {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    background: linear-gradient(135deg, #FF9800, #FFB74D);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 3;
+    box-shadow: 0 1px 4px rgba(255, 152, 0, 0.3);
+    transition: all 0.15s ease;
+}
+
+.pm-comment-card:hover {
+    transform: scale(1.3);
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.4);
+}
+
+.pm-comment-card-icon {
+    font-size: 8px;
+    line-height: 1;
+}
+
+.pm-comment-card--add {
+    background: linear-gradient(135deg, #E0E0E0, #BDBDBD);
+    opacity: 0;
+    box-shadow: none;
+}
+
+.pm-comment-card--add .pm-comment-card-icon {
+    font-size: 10px;
+    color: #616161;
+}
+
+.pm-week-cell--admin:hover .pm-comment-card--add {
+    opacity: 0.5;
+}
+
+.pm-comment-card--add:hover {
+    opacity: 1 !important;
+    background: linear-gradient(135deg, #FF9800, #FFB74D);
+}
+
+.pm-comment-card--add:hover .pm-comment-card-icon {
+    color: #FFFFFF;
+}
+
+/* ============================================================
+   DELETE BUTTON — Admin can remove cell
+   ============================================================ */
+.pm-week-cell-delete {
+    position: absolute;
+    bottom: 1px;
+    right: 1px;
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    background: rgba(211, 47, 47, 0.85);
+    color: #FFFFFF;
+    border: none;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.15s ease;
+    z-index: 3;
+    padding: 0;
+}
+
+.pm-week-cell--admin:hover .pm-week-cell-delete {
+    opacity: 0.7;
+}
+
+.pm-week-cell-delete:hover {
+    opacity: 1 !important;
+    transform: scale(1.2);
+    background: #C62828;
+}
+
+/* ============================================================
+   DEMANDE PM ROW
+   ============================================================ */
+.pm-resource-row--demande {
+    background: rgba(156, 39, 176, 0.03);
+    border-top: 1px dashed rgba(156, 39, 176, 0.2);
+}
+
+.pm-resource-type-label--demande {
+    color: #9C27B0;
+    font-style: italic;
+}
+
+.pm-week-cell--demande {
+    border-right-color: rgba(156, 39, 176, 0.08);
+}
+
+.pm-week-cell--demande.pm-week-cell--admin:hover {
+    background: rgba(156, 39, 176, 0.04);
+}
+
+/* ============================================================
+   LEGEND PANEL — Closeable floating panel
+   ============================================================ */
+.pm-legend-toggle {
+    position: absolute;
+    top: 60px;
+    right: 16px;
+    z-index: 110;
+    background: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    color: #616161;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.pm-legend-toggle:hover {
+    background: #F5F5F5;
+    border-color: #BDBDBD;
+    color: #1A1A1A;
+}
+
+.pm-legend {
+    position: absolute;
+    top: 90px;
+    right: 16px;
+    z-index: 110;
+    background: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    width: 280px;
+    animation: pm-legend-slidein 0.2s ease;
+    overflow: hidden;
+}
+
+.pm-legend-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #F0F0F0;
+    background: #F8F8F8;
+}
+
+.pm-legend-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1A1A1A;
+    letter-spacing: 0.5px;
+}
+
+.pm-legend-close {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: #E0E0E0;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #616161;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.1s ease;
+}
+
+.pm-legend-close:hover {
+    background: #D0D0D0;
+    color: #1A1A1A;
+}
+
+.pm-legend-body {
+    padding: 12px 16px;
+    max-height: 340px;
+    overflow-y: auto;
+}
+
+.pm-legend-section {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #9E9E9E;
+    margin-top: 10px;
+    margin-bottom: 6px;
+}
+
+.pm-legend-section:first-child {
+    margin-top: 0;
+}
+
+.pm-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 0;
+}
+
+.pm-legend-color-swatch {
+    width: 18px;
+    height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.pm-legend-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    padding: 1px 7px;
+    font-size: 9px;
+    font-weight: 700;
+    min-width: 22px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   INFO CARD — Map-style popup for comments
+   ============================================================ */
+.pm-info-card {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #FFFFFF;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15), 0 0 1px rgba(0, 0, 0, 0.1);
+    width: 280px;
+    padding: 16px;
+    z-index: 1000;
+    cursor: default;
+    animation: pm-pop-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid #F0F0F0;
+}
+
+.pm-info-card::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -8px;
+    width: 16px;
+    height: 8px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='8' viewBox='0 0 16 8'%3E%3Cpath fill='%23FFFFFF' d='M0 0h16L8 8z'/%3E%3Cpath fill='%23F0F0F0' d='M0 0h1L8 7l7-7h1L8 8z'/%3E%3C/svg%3E");
+}
+
+.pm-info-card-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: transparent;
+    color: #9E9E9E;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: color 0.15s ease;
+}
+
+.pm-info-card-close:hover {
+    color: #1A1A1A;
+}
+
+.pm-info-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.pm-info-card-type {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #9E9E9E;
+}
+
+.pm-info-card-badge {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #FFFFFF;
+}
+
+.pm-info-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A1A1A;
+    margin-bottom: 2px;
+    line-height: 1.3;
+}
+
+.pm-info-card-id {
+    font-size: 13px;
+    color: #FF1910;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.pm-info-card-sep {
+    height: 1px;
+    background: #F0F0F0;
+    margin: 12px 0;
+}
+
+.pm-info-card-details {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.pm-info-card-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+}
+
+.pm-info-card-label {
+    color: #9E9E9E;
+}
+
+.pm-info-card-value {
+    color: #424242;
+    font-weight: 500;
+}
+
+.pm-info-card-value--bold {
+    font-weight: 700;
+    color: #1A1A1A;
+}
+
+.pm-info-card-comment {
+    background: #FFF8E1;
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin-top: 4px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+.pm-info-card-comment-icon {
+    font-size: 12px;
+    margin-top: 1px;
+}
+
+.pm-info-card-comment-text {
+    font-size: 12px;
+    color: #5D4037;
+    line-height: 1.4;
+    font-style: italic;
+}
+
+.pm-info-card-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 12px;
+}
+
+.pm-info-card-ouvrage {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pm-info-card-ouvrage-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.pm-info-card-ouvrage-text {
+    font-size: 12px;
+    font-weight: 600;
+    color: #1A1A1A;
+}
+
+.pm-info-card-spec {
+    font-size: 11px;
+    color: #9E9E9E;
+    margin-left: 12px;
+}
+
+@keyframes pm-pop-in {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 8px) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+    }
+}
+
+
+.pm-legend-status-swatch {
+    width: 16px;
+    height: 12px;
+    border-radius: 3px;
+    border: 1.5px solid;
+    flex-shrink: 0;
+}
+
+.pm-legend-demande-swatch {
+    width: 18px;
+    height: 12px;
+    border-radius: 3px;
+    border: 1.5px dashed;
+    font-size: 7px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.pm-legend-label {
+    font-size: 11px;
+    color: #424242;
+}
+
+@keyframes pm-legend-slidein {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================================
+   NOTIFICATION TOAST — Admin alert for non-affectés
+   ============================================================ */
+.pm-notification-toast {
+    position: fixed;
+    top: 16px;
+    right: 20px;
+    z-index: 9999;
+    background: #FFFFFF;
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.08);
+    max-width: 340px;
+    min-width: 280px;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateX(120%);
+    transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    flex-direction: row;
+}
+
+.pm-notification-toast--visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.pm-notification-toast-bar {
+    width: 4px;
+    background: #E30613;
+    flex-shrink: 0;
+    border-radius: 0;
+}
+
+.pm-notification-toast-body {
+    display: flex;
+    align-items: flex-start;
+    padding: 14px 14px 14px 12px;
+    gap: 10px;
+    flex: 1;
+}
+
+.pm-notification-toast-icon {
+    font-size: 20px;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.pm-notification-toast-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.pm-notification-toast-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1A1A1A;
+    margin-bottom: 3px;
+}
+
+.pm-notification-toast-message {
+    font-size: 12px;
+    color: #616161;
+    line-height: 1.45;
+}
+
+.pm-notification-toast-message strong {
+    color: #E30613;
+    font-weight: 700;
+}
+
+.pm-notification-toast-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.pm-notification-toast-btn {
+    border: none;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    outline: none;
+}
+
+.pm-notification-toast-btn--view {
+    background: #E30613;
+    color: #FFFFFF;
+}
+
+.pm-notification-toast-btn--view:hover {
+    background: #C0000E;
+    transform: scale(1.03);
+}
+
+.pm-notification-toast-btn--close {
+    background: #F0F0F0;
+    color: #616161;
+    padding: 5px 8px;
+}
+
+.pm-notification-toast-btn--close:hover {
+    background: #E0E0E0;
+    color: #1A1A1A;
+}
+
+/* ============================================================
+   MOVEMENT BADGES — Project shift indicator
+   ============================================================ */
+.pm-movement-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.pm-movement-badge--delayed {
+    background: rgba(245, 166, 35, 0.15);
+    color: #B45309;
+    border: 1px solid rgba(245, 166, 35, 0.4);
+}
+
+.pm-movement-badge--advanced {
+    background: rgba(37, 99, 235, 0.1);
+    color: #1D4ED8;
+    border: 1px solid rgba(37, 99, 235, 0.25);
+}
+
+/* ============================================================
+   EDIT MODE — Drag and drop
+   ============================================================ */
+.pm-edit-mode-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 6px;
+    color: #FFFFFF;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    outline: none;
+}
+
+.pm-edit-mode-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.pm-edit-mode-toggle--active {
+    background: rgba(255, 215, 0, 0.2);
+    border-color: rgba(255, 215, 0, 0.5);
+    color: #FFD700;
+}
+
+.pm-edit-mode-toggle--active:hover {
+    background: rgba(255, 215, 0, 0.3);
+}
+
+.pm-edit-mode-toggle-icon {
+    font-size: 14px;
+}
+
+.pm-edit-mode-indicator {
+    font-size: 10px;
+    margin-left: 4px;
+    opacity: 0.7;
+}
+
+.pm-planning-grid--edit-mode .pm-grid-header-area {
+    background: repeating-linear-gradient(
+        45deg,
+        rgba(255, 215, 0, 0.03),
+        rgba(255, 215, 0, 0.03) 8px,
+        transparent 8px,
+        transparent 16px
+    );
+    border-bottom-color: rgba(255, 215, 0, 0.3);
+}
+
+/* Shift buttons (+1 / -1) */
+.pm-shift-buttons {
+    display: inline-flex;
+    gap: 2px;
+    margin-right: 6px;
+    flex-shrink: 0;
+}
+
+.pm-shift-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 22px;
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid #D0D0D0;
+    border-radius: 4px;
+    background: #FFFFFF;
+    color: #424242;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    padding: 0;
+    line-height: 1;
+}
+
+.pm-shift-btn:hover {
+    background: #F5F5F5;
+    border-color: #BDBDBD;
+}
+
+.pm-shift-btn--left:hover {
+    color: #1D4ED8;
+    border-color: rgba(37, 99, 235, 0.4);
+    background: rgba(37, 99, 235, 0.06);
+}
+
+.pm-shift-btn--right:hover {
+    color: #B45309;
+    border-color: rgba(245, 166, 35, 0.4);
+    background: rgba(245, 166, 35, 0.06);
+}
+
+.pm-shift-btn:active {
+    transform: scale(0.93);
+}
+
+/* ============================================================
+   CONTEXT MENU — Right-click project reset
+   ============================================================ */
+.pm-context-menu {
+    position: fixed;
+    background: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+    z-index: 9999;
+    overflow: hidden;
+    min-width: 180px;
+    animation: pm-context-menu-in 0.12s ease;
+}
+
+@keyframes pm-context-menu-in {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.pm-context-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-family: inherit;
+    color: #1A1A1A;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.1s ease;
+    outline: none;
+}
+
+.pm-context-menu-item:hover {
+    background: #F5F5F5;
+}
+
+/* ============================================================
+   HIGHLIGHT ANIMATION — Non-affectés after "Voir" click
+   ============================================================ */
+@keyframes pm-highlight-pulse {
+    0%   { outline-color: #E30613; }
+    50%  { outline-color: rgba(227, 6, 19, 0.2); }
+    100% { outline-color: #E30613; }
+}
+
+/* ============================================================
+   PROJECT STATUS BORDER IN GRID (Feature 2)
+   ============================================================ */
+.pm-project-status-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px 2px 6px;
+    border-radius: 4px;
+    border-width: 2px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.pm-project-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
