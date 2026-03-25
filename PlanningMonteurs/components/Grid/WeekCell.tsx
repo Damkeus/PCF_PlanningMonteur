@@ -20,6 +20,7 @@ interface WeekCellProps {
     /** Project info for the rich comment card */
     project?: IFicheChantier;
     weekCellWidth: number;
+    movementDirection?: "left" | "right" | null;
 }
 
 const WeekCell: React.FC<WeekCellProps> = ({
@@ -37,6 +38,7 @@ const WeekCell: React.FC<WeekCellProps> = ({
     isHorsMarche,
     project,
     weekCellWidth,
+    movementDirection,
 }) => {
     const [isEditing, setIsEditing] = React.useState(false);
     const [editValue, setEditValue] = React.useState("");
@@ -130,8 +132,15 @@ const WeekCell: React.FC<WeekCellProps> = ({
     const resColor = getResourceColor(resourceType);
 
     return (
-        <div className={cellClasses} onClick={handleClick} ref={cellRef}>
+        <div className={cellClasses} onClick={handleClick} ref={cellRef} style={{ width: weekCellWidth, minWidth: weekCellWidth }}>
             {isCurrentWeek && <div className="pm-week-cell-current-indicator" />}
+
+            {/* Movement arrow indicator */}
+            {movementDirection && hasMonteurs && (
+                <div className={`pm-movement-arrow pm-movement-arrow--${movementDirection}`}>
+                    {movementDirection === "right" ? "\u2192" : "\u2190"}
+                </div>
+            )}
 
             {isEditing ? (
                 <input

@@ -1,14 +1,15 @@
 import * as React from "react";
 
-interface ProjectMovement {
+export interface ProjectMovement {
     deltaWeeks: number;
     originalStartWeek: number;
+    movementType: "all" | "demandePM";
 }
 
 interface UseProjectMovementResult {
     movements: Record<string, ProjectMovement>;
     hasMovements: boolean;
-    moveProject: (projectId: string, currentStartWeek: number, deltaWeeks: number) => void;
+    moveProject: (projectId: string, currentStartWeek: number, deltaWeeks: number, type: "all" | "demandePM") => void;
     resetProject: (projectId: string) => void;
     resetAllMovements: () => void;
     getDeltaWeeks: (projectId: string) => number;
@@ -22,21 +23,20 @@ export function useProjectMovement(): UseProjectMovementResult {
     const [movements, setMovements] = React.useState<Record<string, ProjectMovement>>({});
 
     const moveProject = React.useCallback(
-        (projectId: string, currentStartWeek: number, deltaWeeks: number) => {
+        (projectId: string, currentStartWeek: number, deltaWeeks: number, type: "all" | "demandePM") => {
             setMovements((prev) => {
                 const existing = prev[projectId];
-                // Set originalStartWeek only on first move
                 const originalStartWeek = existing?.originalStartWeek ?? currentStartWeek;
+                const movementType = existing?.movementType ?? type;
                 const totalDelta = (existing?.deltaWeeks ?? 0) + deltaWeeks;
                 if (totalDelta === 0) {
-                    // Back to original — clean up
                     const next = { ...prev };
                     delete next[projectId];
                     return next;
                 }
                 return {
                     ...prev,
-                    [projectId]: { deltaWeeks: totalDelta, originalStartWeek },
+                    [projectId]: { deltaWeeks: totalDelta, originalStartWeek, movementType },
                 };
             });
         },

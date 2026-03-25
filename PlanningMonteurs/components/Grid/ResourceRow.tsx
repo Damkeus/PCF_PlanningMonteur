@@ -18,6 +18,8 @@ interface ResourceRowProps {
     onSaveFiabilite: (record: IPlanningFiabilite) => void;
     onDeleteAffectation: (id: number) => void;
     weekCellWidth: number;
+    movementDirection?: "left" | "right" | null;
+    dragStyle?: React.CSSProperties;
 }
 
 const ResourceRow: React.FC<ResourceRowProps> = ({
@@ -34,6 +36,8 @@ const ResourceRow: React.FC<ResourceRowProps> = ({
     onSaveFiabilite,
     onDeleteAffectation,
     weekCellWidth,
+    movementDirection,
+    dragStyle,
 }) => {
     const { resourceType, fiabilite, weekData } = resourceLine;
 
@@ -87,7 +91,7 @@ const ResourceRow: React.FC<ResourceRowProps> = ({
                     </div>
                 ) : null}
             </div>
-            <div className="pm-resource-row-right">
+            <div className="pm-resource-row-right" style={dragStyle}>
                 {weeks.map((w) => (
                     <WeekCell
                         key={w.weekNumber}
@@ -104,6 +108,7 @@ const ResourceRow: React.FC<ResourceRowProps> = ({
                         isHorsMarche={isHorsMarche}
                         project={project}
                         weekCellWidth={weekCellWidth}
+                        movementDirection={movementDirection}
                     />
                 ))}
             </div>

@@ -15,6 +15,8 @@ interface PlanningHeaderProps {
     onConfirmMoves?: () => void;
     visibleWeeks: number;
     onZoomChange: (weeks: number) => void;
+    isAnnexeView?: boolean;
+    onToggleAnnexe?: () => void;
 }
 
 const PlanningHeader: React.FC<PlanningHeaderProps> = ({
@@ -30,6 +32,8 @@ const PlanningHeader: React.FC<PlanningHeaderProps> = ({
     onConfirmMoves,
     visibleWeeks,
     onZoomChange,
+    isAnnexeView,
+    onToggleAnnexe,
 }) => {
     const yearOptions = availableYears.length > 0
         ? availableYears
@@ -66,6 +70,18 @@ const PlanningHeader: React.FC<PlanningHeaderProps> = ({
                         title="Enregistrer les déplacements"
                     >
                         <span className="pm-save-btn-icon">💾</span>
+                    </button>
+                )}
+
+                {/* Annexe toggle button */}
+                {onToggleAnnexe && (
+                    <button
+                        className={`pm-annexe-btn ${isAnnexeView ? "pm-annexe-btn--active" : ""}`}
+                        onClick={onToggleAnnexe}
+                        type="button"
+                        title={isAnnexeView ? "Retour Planning" : "Voir Annexe"}
+                    >
+                        {isAnnexeView ? "← Planning" : "Voir Annexe"}
                     </button>
                 )}
 

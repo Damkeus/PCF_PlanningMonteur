@@ -1,12 +1,10 @@
 import * as React from "react";
 import { IProjectBlock, IWeekInfo, IPlanningAffectation, IPlanningFiabilite } from "../../types";
+import { ProjectMovement } from "../../hooks/useProjectMovement";
+import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { restrictToHorizontalAxis } from "@dnd-kit/modifiers";
 import ProjectRow from "./ProjectRow";
 import WeekHeader from "./WeekHeader";
-
-interface ProjectMovement {
-    deltaWeeks: number;
-    originalStartWeek: number;
-}
 
 interface PlanningGridProps {
     projectBlocks: IProjectBlock[];
@@ -26,6 +24,8 @@ interface PlanningGridProps {
     onResetProject: (projectId: string) => void;
     scrollRef: React.RefObject<HTMLDivElement>;
     onScroll: (e: React.UIEvent<HTMLDivElement>) => void;
+    bodyScrollRef: React.RefObject<HTMLDivElement>;
+    onBodyScroll: (e: React.UIEvent<HTMLDivElement>) => void;
     weekCellWidth: number;
 }
 
@@ -47,9 +47,25 @@ const PlanningGrid: React.FC<PlanningGridProps> = ({
     onResetProject,
     scrollRef,
     onScroll,
+    bodyScrollRef,
+    onBodyScroll,
     weekCellWidth,
 }) => {
     const totalWidth = weeks.length * weekCellWidth;
+
+    // DnD sensors — require 8px movement before activating drag
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+    );
+
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, delta } = event;
+        const deltaWeeks = Math.round(delta.x / weekCellWidth);
+        if (deltaWeeks !== 0) {
+            const startWeek = (active.data.current as { startWeek: number })?.startWeek ?? currentWeek;
+            onMoveProject(active.id as string, startWeek, deltaWeeks);
+        }
+    };
 
     return (
         <div className={`pm-planning-grid ${isEditMode ? "pm-planning-grid--edit-mode" : ""}`}>
@@ -73,51 +89,53 @@ const PlanningGrid: React.FC<PlanningGridProps> = ({
             </div>
 
             {/* Project rows area */}
-            <div className="pm-grid-body">
-                <div className="pm-grid-body-inner">
-                    {projectBlocks.length === 0 ? (
-                        <div className="pm-grid-empty">
-                            <div className="pm-grid-empty-icon">📋</div>
-                            <div className="pm-grid-empty-text">Aucun projet à afficher</div>
-                            <div className="pm-grid-empty-hint">
-                                Changez le filtre PM ou ajoutez un nouveau projet
+            <div className="pm-grid-body" ref={bodyScrollRef as React.RefObject<HTMLDivElement>} onScroll={onBodyScroll}>
+                <DndContext sensors={sensors} modifiers={[restrictToHorizontalAxis]} onDragEnd={handleDragEnd}>
+                    <div className="pm-grid-body-inner">
+                        {projectBlocks.length === 0 ? (
+                            <div className="pm-grid-empty">
+                                <div className="pm-grid-empty-icon">📋</div>
+                                <div className="pm-grid-empty-text">Aucun projet à afficher</div>
+                                <div className="pm-grid-empty-hint">
+                                    Changez le filtre PM ou ajoutez un nouveau projet
+                                </div>
                             </div>
-                        </div>
-                    ) : (
-                        projectBlocks.map((pb) => (
-                            <ProjectRow
-                                key={pb.project.ProjectUniqID}
-                                projectBlock={pb}
-                                weeks={weeks}
-                                currentWeek={currentWeek}
-                                isAdmin={isAdmin}
-                                year={year}
-                                isEditMode={isEditMode}
-                                deltaWeeks={projectMovements[pb.project.ProjectUniqID]?.deltaWeeks ?? 0}
-                                highlighted={highlightNonAffectes && pb.status === "non-affecte"}
-                                onSaveAffectation={onSaveAffectation}
-                                onSaveFiabilite={onSaveFiabilite}
-                                onDeleteAffectation={onDeleteAffectation}
-                                onToggleExpand={onToggleExpand}
-                                onResetMovement={() => onResetProject(pb.project.ProjectUniqID)}
-                                weekCellWidth={weekCellWidth}
-                                onShift={(delta) => onMoveProject(
-                                    pb.project.ProjectUniqID,
-                                    pb.project.DateDebutSemaine ?? currentWeek,
-                                    delta
-                                )}
-                            />
-                        ))
-                    )}
+                        ) : (
+                            projectBlocks.map((pb) => (
+                                <ProjectRow
+                                    key={pb.project.ProjectUniqID}
+                                    projectBlock={pb}
+                                    weeks={weeks}
+                                    currentWeek={currentWeek}
+                                    isAdmin={isAdmin}
+                                    year={year}
+                                    isEditMode={isEditMode}
+                                    deltaWeeks={projectMovements[pb.project.ProjectUniqID]?.deltaWeeks ?? 0}
+                                    highlighted={highlightNonAffectes && pb.status === "non-affecte"}
+                                    onSaveAffectation={onSaveAffectation}
+                                    onSaveFiabilite={onSaveFiabilite}
+                                    onDeleteAffectation={onDeleteAffectation}
+                                    onToggleExpand={onToggleExpand}
+                                    onResetMovement={() => onResetProject(pb.project.ProjectUniqID)}
+                                    weekCellWidth={weekCellWidth}
+                                    onShift={(delta) => onMoveProject(
+                                        pb.project.ProjectUniqID,
+                                        pb.project.DateDebutSemaine ?? currentWeek,
+                                        delta
+                                    )}
+                                />
+                            ))
+                        )}
 
-                    {/* Add project button */}
-                    {isAdmin && !isEditMode && (
-                        <div className="pm-add-project-row" onClick={onAddProject}>
-                            <span className="pm-add-project-icon">+</span>
-                            <span className="pm-add-project-label">Ajouter un projet</span>
-                        </div>
-                    )}
-                </div>
+                        {/* Add project button */}
+                        {isAdmin && !isEditMode && (
+                            <div className="pm-add-project-row" onClick={onAddProject}>
+                                <span className="pm-add-project-icon">+</span>
+                                <span className="pm-add-project-label">Ajouter un projet</span>
+                            </div>
+                        )}
+                    </div>
+                </DndContext>
             </div>
         </div>
     );

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { IProjectBlock, IWeekInfo, IPlanningAffectation, IPlanningFiabilite } from "../../types";
 import { PROJECT_STATUS_COLORS } from "../Shared/constants";
+import { useDraggable } from "@dnd-kit/core";
 import ResourceRow from "./ResourceRow";
 import WeekCell from "./WeekCell";
 
@@ -23,7 +24,7 @@ interface ProjectRowProps {
 }
 
 /**
- * Project row with +1/-1 shift buttons, movement badge, and right-click reset.
+ * Project row with +1/-1 shift buttons, horizontal drag, movement badge, and right-click reset.
  */
 const ProjectRow: React.FC<ProjectRowProps> = ({
     projectBlock,
@@ -48,8 +49,22 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
     const statusConfig = PROJECT_STATUS_COLORS[status];
     const [contextMenu, setContextMenu] = React.useState<{ x: number; y: number } | null>(null);
 
+    // DnD — horizontal drag for project shifting
+    const canDrag = isEditMode || !isAdmin;
+    const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+        id: project.ProjectUniqID,
+        data: { startWeek: project.DateDebutSemaine ?? currentWeek },
+        disabled: !canDrag,
+    });
+
+    // Snap transform to weekCellWidth grid for visual feedback during drag
+    const snappedX = transform ? Math.round(transform.x / weekCellWidth) * weekCellWidth : 0;
+    const dragStyle: React.CSSProperties | undefined = transform
+        ? { transform: `translateX(${snappedX}px)`, transition: "none" }
+        : undefined;
+
     const handleToggle = () => {
-        if (!isEditMode) {
+        if (!isDragging && !isEditMode) {
             onToggleExpand(project.ProjectUniqID);
         }
     };
@@ -86,27 +101,35 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
         ? { outline: "2px solid #E30613", outlineOffset: "-2px", animation: "pm-highlight-pulse 1.5s ease 3" }
         : undefined;
 
+    // Movement direction for arrow indicators
+    const movementDirection: "left" | "right" | null =
+        deltaWeeks > 0 ? "right" : deltaWeeks < 0 ? "left" : null;
+
     return (
         <div
-            className={`pm-project-row ${isExpanded ? "pm-project-row--expanded" : "pm-project-row--collapsed"}`}
+            className={`pm-project-row ${isExpanded ? "pm-project-row--expanded" : "pm-project-row--collapsed"} ${isDragging ? "pm-project-row--dragging" : ""}`}
             style={rowHighlightStyle}
         >
             {/* Project header */}
             <div
-                className="pm-project-header"
+                className={`pm-project-header ${canDrag ? "pm-project-header--draggable" : ""}`}
                 style={{
                     ...(isEditMode ? { borderLeft: `2px solid ${statusConfig.border}`, backgroundColor: statusConfig.bg } : {}),
                 }}
                 onClick={handleToggle}
                 onContextMenu={handleContextMenu}
+                ref={setNodeRef}
+                {...listeners}
+                {...attributes}
             >
                 <div className="pm-project-header-left">
-                    {/* Shift buttons in edit mode */}
-                    {isEditMode && (
+                    {/* Shift buttons: admin in edit mode, viewer always */}
+                    {(isEditMode || !isAdmin) && (
                         <div className="pm-shift-buttons">
                             <button
                                 className="pm-shift-btn pm-shift-btn--left"
                                 onClick={(e) => { e.stopPropagation(); onShift(-1); }}
+                                onPointerDown={(e) => e.stopPropagation()}
                                 type="button"
                                 title="Avancer d'1 semaine"
                             >
@@ -115,6 +138,7 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
                             <button
                                 className="pm-shift-btn pm-shift-btn--right"
                                 onClick={(e) => { e.stopPropagation(); onShift(1); }}
+                                onPointerDown={(e) => e.stopPropagation()}
                                 type="button"
                                 title="Décaler d'1 semaine"
                             >
@@ -184,7 +208,7 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
                         <div className="pm-resource-type-indicator" style={{ backgroundColor: "#9C27B0" }} />
                         <span className="pm-resource-type-label pm-resource-type-label--demande">Demande PM</span>
                     </div>
-                    <div className="pm-resource-row-right">
+                    <div className="pm-resource-row-right" style={dragStyle}>
                         {weeks.map((w) => (
                             <WeekCell
                                 key={w.weekNumber}
@@ -202,6 +226,7 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
                                 isHorsMarche={isHorsMarche}
                                 project={project}
                                 weekCellWidth={weekCellWidth}
+                                movementDirection={movementDirection}
                             />
                         ))}
                     </div>
@@ -225,6 +250,8 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
                     onDeleteAffectation={onDeleteAffectation}
                     project={project}
                     weekCellWidth={weekCellWidth}
+                    movementDirection={movementDirection}
+                    dragStyle={dragStyle}
                 />
             ))}
         </div>

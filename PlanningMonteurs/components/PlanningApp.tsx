@@ -18,6 +18,7 @@ import PlanningHeader from "./Header/PlanningHeader";
 import CapaciteGrid from "./Header/CapaciteGrid";
 import PlanningGrid from "./Grid/PlanningGrid";
 import AffectationPanel from "./Panels/AffectationPanel";
+import AnnexeView from "./Annexe/AnnexeView";
 import Legend from "./Shared/Legend";
 import NotificationToast from "./NotificationToast";
 import EditModeToggle from "./EditModeToggle";
@@ -53,6 +54,8 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
     const [toast, setToast] = React.useState<string | null>(null);
     const [isEditMode, setIsEditMode] = React.useState(false);
     const [highlightNonAffectes, setHighlightNonAffectes] = React.useState(false);
+    const [pendingShifts, setPendingShifts] = React.useState<Record<string, { delta: number; type: string }>>({});
+    const [currentView, setCurrentView] = React.useState<"planning" | "annexe">("planning");
 
     // Zoom state: controls how many weeks are visible (10→52)
     const containerRef = React.useRef<HTMLDivElement>(null);
@@ -65,9 +68,10 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
         return Math.max(12, Math.floor(availableWidth / visibleWeeks));
     }, [visibleWeeks]);
 
-    // Refs for scroll sync
+    // Refs for scroll sync (3-way: capacite, grid header, grid body)
     const capaciteScrollRef = React.useRef<HTMLDivElement>(null);
     const gridHeaderScrollRef = React.useRef<HTMLDivElement>(null);
+    const gridBodyScrollRef = React.useRef<HTMLDivElement>(null);
     const isSyncingScroll = React.useRef(false);
 
     // DnD project movement
@@ -114,6 +118,17 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
         return "non-affecte";
     };
 
+    // Clear pending shifts when planningData changes (Power Apps responded)
+    const planningDataRef = React.useRef(planningData);
+    React.useEffect(() => {
+        if (planningData !== planningDataRef.current) {
+            planningDataRef.current = planningData;
+            if (Object.keys(pendingShifts).length > 0) {
+                setPendingShifts({});
+            }
+        }
+    }, [planningData]);
+
     // Build project blocks with resource lines + Demande PM
     const projectBlocks: IProjectBlock[] = React.useMemo(() => {
         return filteredProjectsList.map((project) => {
@@ -124,6 +139,9 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
             // Separate demandes PM from real affectations
             const demandes = projectAffectations.filter(a => a.IsDemandePM);
             const realAffectations = projectAffectations.filter(a => !a.IsDemandePM);
+
+            // Apply pending optimistic shifts to weekData
+            const shift = pendingShifts[project.ProjectUniqID];
 
             // Build resource types from real affectations
             const resourceTypesSet = new Set<ResourceType>();
@@ -144,7 +162,10 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
                     const weekData = new Map<number, IPlanningAffectation>();
                     realAffectations
                         .filter((a) => a.ResourceType === rt)
-                        .forEach((a) => weekData.set(a.WeekNumber, a));
+                        .forEach((a) => {
+                            const wk = (shift && shift.type !== "demandePM") ? a.WeekNumber + shift.delta : a.WeekNumber;
+                            weekData.set(wk, { ...a, WeekNumber: wk });
+                        });
 
                     const fiabilite = projectFiabilites.find(
                         (f) => f.ResourceType === rt
@@ -157,10 +178,12 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
             let demandePMLine: IDemandePMLine | undefined;
             if (demandes.length > 0) {
                 const weekData = new Map<number, IPlanningAffectation>();
-                demandes.forEach((d) => weekData.set(d.WeekNumber, d));
+                demandes.forEach((d) => {
+                    const wk = (shift && shift.type === "demandePM") ? d.WeekNumber + shift.delta : d.WeekNumber;
+                    weekData.set(wk, { ...d, WeekNumber: wk });
+                });
                 demandePMLine = { weekData };
             } else {
-                // Always show demande PM line (empty, editable)
                 demandePMLine = { weekData: new Map() };
             }
 
@@ -180,7 +203,7 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
                 status,
             };
         });
-    }, [filteredProjectsList, planningData, fiabiliteData, expandedProjects]);
+    }, [filteredProjectsList, planningData, fiabiliteData, expandedProjects, pendingShifts]);
 
     // Notification hook (admin only)
     const { unaffectedCount, isDismissed, dismiss } = useNotification(
@@ -211,29 +234,25 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
         });
     };
 
-    // Scroll sync handlers
-    const handleCapaciteScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    // 3-way scroll sync helper
+    const syncScroll = (source: HTMLDivElement, ...targets: (HTMLDivElement | null)[]) => {
         if (isSyncingScroll.current) return;
         isSyncingScroll.current = true;
-        const scrollLeft = (e.target as HTMLDivElement).scrollLeft;
-        if (gridHeaderScrollRef.current) {
-            gridHeaderScrollRef.current.scrollLeft = scrollLeft;
-        }
-        requestAnimationFrame(() => {
-            isSyncingScroll.current = false;
-        });
+        const scrollLeft = source.scrollLeft;
+        targets.forEach(t => { if (t) t.scrollLeft = scrollLeft; });
+        requestAnimationFrame(() => { isSyncingScroll.current = false; });
+    };
+
+    const handleCapaciteScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        syncScroll(e.target as HTMLDivElement, gridHeaderScrollRef.current, gridBodyScrollRef.current);
     };
 
     const handleGridScroll = (e: React.UIEvent<HTMLDivElement>) => {
-        if (isSyncingScroll.current) return;
-        isSyncingScroll.current = true;
-        const scrollLeft = (e.target as HTMLDivElement).scrollLeft;
-        if (capaciteScrollRef.current) {
-            capaciteScrollRef.current.scrollLeft = scrollLeft;
-        }
-        requestAnimationFrame(() => {
-            isSyncingScroll.current = false;
-        });
+        syncScroll(e.target as HTMLDivElement, capaciteScrollRef.current, gridBodyScrollRef.current);
+    };
+
+    const handleBodyScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        syncScroll(e.target as HTMLDivElement, capaciteScrollRef.current, gridHeaderScrollRef.current);
     };
 
     // Save handlers with toast
@@ -262,9 +281,9 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
         setTimeout(() => setToast(null), 2000);
     };
 
-    // Handle project move (DnD)
+    // Handle project move (+1/-1 or DnD)
     const handleMoveProject = (projectId: string, currentStartWeek: number, deltaWeeks: number) => {
-        moveProject(projectId, currentStartWeek, deltaWeeks);
+        moveProject(projectId, currentStartWeek, deltaWeeks, isAdmin ? "all" : "demandePM");
         showToast(deltaWeeks > 0
             ? `Projet décalé de +${deltaWeeks} sem.`
             : `Projet avancé de ${Math.abs(deltaWeeks)} sem.`
@@ -281,10 +300,12 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
             const delta = getDeltaWeeks(projectId);
             if (delta === 0) return;
 
-            // Find all real affectations for this project
-            const projectAffectations = planningData.filter(
-                (a) => a.ProjectUniqID === projectId && !a.IsDemandePM
-            );
+            const mType = movements[projectId]?.movementType ?? "all";
+            // Filter affectations based on movement type
+            const projectAffectations = planningData.filter((a) => {
+                if (a.ProjectUniqID !== projectId) return false;
+                return mType === "demandePM" ? !!a.IsDemandePM : !a.IsDemandePM;
+            });
 
             projectAffectations.forEach((aff) => {
                 const updatedRecord: IPlanningAffectation = {
@@ -295,6 +316,14 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
                 patchCount++;
             });
         });
+
+        // Optimistic update: store shifts so UI reflects changes immediately
+        const shifts: Record<string, { delta: number; type: string }> = {};
+        movedProjectIds.forEach(id => {
+            const d = getDeltaWeeks(id);
+            if (d !== 0) shifts[id] = { delta: d, type: movements[id]?.movementType ?? "all" };
+        });
+        setPendingShifts(shifts);
 
         resetAllMovements();
         showToast(`${patchCount} affectation${patchCount > 1 ? "s" : ""} mise${patchCount > 1 ? "s" : ""} à jour`);
@@ -325,6 +354,9 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
                 if (gridHeaderScrollRef.current) {
                     gridHeaderScrollRef.current.scrollLeft = scrollLeft;
                 }
+                if (gridBodyScrollRef.current) {
+                    gridBodyScrollRef.current.scrollLeft = scrollLeft;
+                }
             }
         };
         setTimeout(scrollToCurrentWeek, 100);
@@ -352,6 +384,8 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
                 onConfirmMoves={handleConfirmMoves}
                 visibleWeeks={visibleWeeks}
                 onZoomChange={setVisibleWeeks}
+                isAnnexeView={currentView === "annexe"}
+                onToggleAnnexe={() => setCurrentView(currentView === "planning" ? "annexe" : "planning")}
             />
 
             {/* Legend toggle button */}
@@ -366,48 +400,65 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
 
             <Legend visible={showLegend} onClose={() => setShowLegend(false)} />
 
-            <CapaciteGrid
-                capaciteData={capaciteData}
-                weeks={weeks}
-                currentWeek={currentWeek}
-                isAdmin={isAdmin}
-                onSaveCapacite={handleSaveCapacite}
-                scrollRef={capaciteScrollRef}
-                onScroll={handleCapaciteScroll}
-                weekCellWidth={weekCellWidth}
-            />
+            {currentView === "planning" ? (
+                <>
+                    <CapaciteGrid
+                        capaciteData={capaciteData}
+                        planningData={planningData}
+                        ficheChantierData={ficheChantierData}
+                        weeks={weeks}
+                        currentWeek={currentWeek}
+                        isAdmin={isAdmin}
+                        onSaveCapacite={handleSaveCapacite}
+                        scrollRef={capaciteScrollRef}
+                        onScroll={handleCapaciteScroll}
+                        weekCellWidth={weekCellWidth}
+                    />
 
-            <div className="pm-separator" />
+                    <div className="pm-separator" />
 
-            <PlanningGrid
-                projectBlocks={projectBlocks}
-                weeks={weeks}
-                currentWeek={currentWeek}
-                isAdmin={isAdmin}
-                year={currentYear}
-                isEditMode={isEditMode}
-                highlightNonAffectes={highlightNonAffectes}
-                projectMovements={movements}
-                onSaveAffectation={handleSaveAffectation}
-                onDeleteAffectation={handleDeleteAffectation}
-                onSaveFiabilite={handleSaveFiabilite}
-                onToggleExpand={handleToggleExpand}
-                onAddProject={() => setShowAddPanel(true)}
-                onMoveProject={handleMoveProject}
-                onResetProject={resetProject}
-                scrollRef={gridHeaderScrollRef}
-                onScroll={handleGridScroll}
-                weekCellWidth={weekCellWidth}
-            />
+                    <PlanningGrid
+                        projectBlocks={projectBlocks}
+                        weeks={weeks}
+                        currentWeek={currentWeek}
+                        isAdmin={isAdmin}
+                        year={currentYear}
+                        isEditMode={isEditMode}
+                        highlightNonAffectes={highlightNonAffectes}
+                        projectMovements={movements}
+                        onSaveAffectation={handleSaveAffectation}
+                        onDeleteAffectation={handleDeleteAffectation}
+                        onSaveFiabilite={handleSaveFiabilite}
+                        onToggleExpand={handleToggleExpand}
+                        onAddProject={() => setShowAddPanel(true)}
+                        onMoveProject={handleMoveProject}
+                        onResetProject={resetProject}
+                        scrollRef={gridHeaderScrollRef}
+                        onScroll={handleGridScroll}
+                        bodyScrollRef={gridBodyScrollRef}
+                        onBodyScroll={handleBodyScroll}
+                        weekCellWidth={weekCellWidth}
+                    />
 
-            <AffectationPanel
-                visible={showAddPanel}
-                ficheChantierData={ficheChantierData}
-                currentYear={currentYear}
-                onClose={() => setShowAddPanel(false)}
-                onSaveAffectation={handleSaveAffectation}
-                onSaveFiabilite={handleSaveFiabilite}
-            />
+                    <AffectationPanel
+                        visible={showAddPanel}
+                        ficheChantierData={ficheChantierData}
+                        currentYear={currentYear}
+                        onClose={() => setShowAddPanel(false)}
+                        onSaveAffectation={handleSaveAffectation}
+                        onSaveFiabilite={handleSaveFiabilite}
+                    />
+                </>
+            ) : (
+                <AnnexeView
+                    planningData={planningData}
+                    ficheChantierData={ficheChantierData}
+                    currentYear={currentYear}
+                    currentWeek={currentWeek}
+                    weeks={weeks}
+                    weekCellWidth={weekCellWidth}
+                />
+            )}
 
             {/* Admin notification toast */}
             {showNotification && (

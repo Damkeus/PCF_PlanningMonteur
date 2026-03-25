@@ -177,7 +177,7 @@
     z-index: 50;
 }
 
-.pm-capacite-section-label {
+.pm-capacite-title-label {
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 1.5px;
@@ -186,34 +186,93 @@
     padding: 8px 20px 4px;
 }
 
-.pm-capacite-row {
+/* Section container */
+.pm-capacite-section {
     display: flex;
     align-items: stretch;
-    min-height: 30px;
-    border-bottom: 1px solid #F0F0F0;
-}
-
-.pm-capacite-row:last-of-type {
     border-bottom: 1px solid #E0E0E0;
 }
 
-.pm-capacite-row-left {
-    width: 300px;
-    min-width: 300px;
+/* Section header label (NEXANS, SCLS, HTB, RTE/ENEDIS) */
+.pm-capacite-section-header {
+    width: 80px;
+    min-width: 80px;
     display: flex;
     align-items: center;
-    padding: 0 20px;
-    background: #FFFFFF;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    writing-mode: horizontal-tb;
+    text-align: center;
+    padding: 4px 6px;
     position: sticky;
     left: 0;
+    z-index: 11;
+}
+
+/* Section rows container */
+.pm-capacite-section-rows {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.pm-capacite-section-rows--no-header {
+    margin-left: 0;
+}
+
+.pm-capacite-row {
+    display: flex;
+    align-items: stretch;
+    min-height: 28px;
+    border-bottom: 1px solid #F0F0F0;
+}
+
+.pm-capacite-row:last-child {
+    border-bottom: none;
+}
+
+.pm-capacite-row--yellow {
+    background: #FFF8E1;
+}
+
+.pm-capacite-row-left {
+    width: 220px;
+    min-width: 220px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    background: #FFFFFF;
+    position: sticky;
+    left: 80px;
     z-index: 10;
     border-right: 1px solid #E8E8E8;
 }
 
+.pm-capacite-row--yellow .pm-capacite-row-left {
+    background: #FFF8E1;
+}
+
+.pm-capacite-section-rows--no-header .pm-capacite-row-left {
+    left: 0;
+    width: 300px;
+    min-width: 300px;
+}
+
 .pm-capacite-label {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 500;
     color: #616161;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pm-capacite-label--computed {
+    font-style: italic;
+    color: #888;
 }
 
 .pm-capacite-row-right {
@@ -229,8 +288,7 @@
 }
 
 .pm-capacite-cell {
-    width: 48px;
-    min-width: 48px;
+    flex-shrink: 0;
     height: 30px;
     display: flex;
     align-items: center;
@@ -259,6 +317,15 @@
 .pm-capacite-value--bold {
     font-weight: 700;
     font-size: 13px;
+}
+
+.pm-capacite-value--red {
+    color: #D32F2F !important;
+    font-weight: 700;
+}
+
+.pm-capacite-cell--computed {
+    cursor: default;
 }
 
 .pm-capacite-input {
@@ -569,8 +636,7 @@
    WEEK CELL — Individual Gantt cell
    ============================================================ */
 .pm-week-cell {
-    width: 48px;
-    min-width: 48px;
+    flex-shrink: 0;
     height: 36px;
     display: flex;
     align-items: center;
@@ -2145,6 +2211,431 @@
 .pm-project-status-dot {
     width: 6px;
     height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   DND DRAG STYLES
+   ============================================================ */
+.pm-project-row--dragging {
+    z-index: 10;
+    opacity: 0.9;
+}
+
+.pm-project-header--draggable {
+    cursor: grab;
+}
+
+.pm-project-header--draggable:active {
+    cursor: grabbing;
+}
+
+/* ============================================================
+   MOVEMENT ARROW INDICATOR
+   ============================================================ */
+.pm-movement-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    opacity: 0.35;
+    pointer-events: none;
+    color: #333;
+    z-index: 1;
+    line-height: 1;
+}
+
+.pm-movement-arrow--right {
+    right: 2px;
+}
+
+.pm-movement-arrow--left {
+    left: 2px;
+}
+
+/* ============================================================
+   ANNEXE BUTTON — Header toggle
+   ============================================================ */
+.pm-annexe-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 14px;
+    border: 1px solid #E0E0E0;
+    border-radius: 6px;
+    background: #FFFFFF;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    color: #424242;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.pm-annexe-btn:hover {
+    background: #F5F5F5;
+    border-color: #BDBDBD;
+}
+
+.pm-annexe-btn--active {
+    background: #FF1910;
+    color: #FFFFFF;
+    border-color: #FF1910;
+}
+
+.pm-annexe-btn--active:hover {
+    background: #D3140D;
+    border-color: #D3140D;
+}
+
+/* ============================================================
+   ANNEXE VIEW — Annual workload tracking
+   ============================================================ */
+.pm-annexe {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #FFFFFF;
+}
+
+.pm-annexe-toolbar {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 12px 20px;
+    border-bottom: 1px solid #E8E8E8;
+    flex-shrink: 0;
+}
+
+.pm-annexe-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A1A1A;
+}
+
+.pm-annexe-subtitle {
+    font-size: 12px;
+    color: #9E9E9E;
+}
+
+/* Annexe header area */
+.pm-annexe-header-area {
+    display: flex;
+    border-bottom: 2px solid #E0E0E0;
+    flex-shrink: 0;
+    background: #FAFAFA;
+}
+
+.pm-annexe-header-left {
+    display: flex;
+    align-items: center;
+    background: #FAFAFA;
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    border-right: 1px solid #E0E0E0;
+    min-height: 52px;
+}
+
+.pm-annexe-header-right {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+}
+
+.pm-annexe-header-right::-webkit-scrollbar {
+    display: none;
+}
+
+.pm-annexe-month-row {
+    display: flex;
+    border-bottom: 1px solid #E8E8E8;
+}
+
+.pm-annexe-month-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #616161;
+    padding: 4px 0;
+    border-right: 1px solid #E8E8E8;
+}
+
+.pm-annexe-week-row {
+    display: flex;
+}
+
+.pm-annexe-week-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: #9E9E9E;
+    border-right: 1px solid #F0F0F0;
+    padding: 2px 0;
+}
+
+.pm-annexe-week-cell--current {
+    color: #FF1910;
+    font-weight: 800;
+    background: rgba(255, 25, 16, 0.06);
+}
+
+/* Column widths */
+.pm-annexe-col {
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    font-size: 11px;
+    color: #424242;
+    flex-shrink: 0;
+}
+
+.pm-annexe-col--tri {
+    width: 40px;
+    justify-content: center;
+    font-weight: 600;
+}
+
+.pm-annexe-col--pm {
+    width: 32px;
+    justify-content: center;
+    font-weight: 700;
+}
+
+.pm-annexe-col--res {
+    width: 44px;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 10px;
+}
+
+.pm-annexe-col--title {
+    width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.pm-annexe-col--tension {
+    width: 60px;
+    justify-content: center;
+    font-size: 10px;
+}
+
+.pm-annexe-col--debut {
+    width: 44px;
+    justify-content: center;
+    font-size: 10px;
+}
+
+.pm-annexe-col--total {
+    width: 60px;
+    justify-content: center;
+    font-weight: 700;
+}
+
+.pm-annexe-col--total-value {
+    color: #1A1A1A;
+    font-size: 12px;
+}
+
+/* Annexe body */
+.pm-annexe-body {
+    flex: 1;
+    overflow: auto;
+}
+
+.pm-annexe-row {
+    display: flex;
+    border-bottom: 1px solid #F0F0F0;
+    min-height: 28px;
+}
+
+.pm-annexe-row:hover {
+    background: rgba(0, 0, 0, 0.015);
+}
+
+.pm-annexe-row--summary {
+    border-top: 2px solid #E0E0E0;
+    background: #FAFAFA;
+    min-height: 32px;
+}
+
+.pm-annexe-row--summary:hover {
+    background: #F5F5F5;
+}
+
+.pm-annexe-row-left {
+    display: flex;
+    align-items: center;
+    background: #FFFFFF;
+    position: sticky;
+    left: 0;
+    z-index: 5;
+    border-right: 1px solid #E8E8E8;
+}
+
+.pm-annexe-row--summary .pm-annexe-row-left {
+    background: #FAFAFA;
+}
+
+.pm-annexe-row-right {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+}
+
+/* Annexe data cells */
+.pm-annexe-cell {
+    flex-shrink: 0;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    border-right: 1px solid #F5F5F5;
+}
+
+.pm-annexe-cell--current {
+    border-left: 2px solid #FF1910;
+    background: rgba(255, 25, 16, 0.04) !important;
+}
+
+.pm-annexe-cell--summary {
+    height: 32px;
+    font-size: 12px;
+}
+
+/* Export button */
+.pm-annexe-export-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    border: 1px solid #2E7D32;
+    border-radius: 6px;
+    background: #FFFFFF;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    color: #2E7D32;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    margin-left: auto;
+}
+
+.pm-annexe-export-btn:hover {
+    background: #E8F5E9;
+}
+
+.pm-annexe-export-btn:active {
+    background: #C8E6C9;
+}
+
+/* ============================================================
+   ANNEXE CHART — Workload evolution graph
+   ============================================================ */
+.pm-annexe-chart {
+    position: relative;
+    margin: 24px 20px;
+    background: #FFFFFF;
+    border: 1px solid #E8E8E8;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.pm-annexe-chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.pm-annexe-chart-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1A1A1A;
+}
+
+.pm-annexe-chart-legend {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.pm-annexe-chart-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #616161;
+    font-weight: 500;
+}
+
+.pm-annexe-chart-legend-line {
+    display: inline-block;
+    width: 20px;
+    height: 3px;
+    border-radius: 2px;
+}
+
+.pm-annexe-chart-svg {
+    display: block;
+    cursor: crosshair;
+}
+
+/* Tooltip */
+.pm-annexe-chart-tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    padding: 10px 14px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    z-index: 20;
+    min-width: 160px;
+    animation: pm-chart-tooltip-fadein 0.12s ease;
+}
+
+@keyframes pm-chart-tooltip-fadein {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.pm-annexe-chart-tooltip-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1A1A1A;
+    margin-bottom: 6px;
+}
+
+.pm-annexe-chart-tooltip-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #424242;
+    margin-bottom: 2px;
+}
+
+.pm-annexe-chart-tooltip-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     flex-shrink: 0;
 }

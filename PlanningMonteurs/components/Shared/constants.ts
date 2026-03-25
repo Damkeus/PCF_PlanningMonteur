@@ -81,7 +81,7 @@ export const QUICK_COMMENT_TAGS = [
 ];
 
 // ============================================================
-// Capacité header row labels
+// Capacité header row labels (legacy flat list — kept for reference)
 // ============================================================
 
 export const CAPACITE_ROW_LABELS = [
@@ -97,6 +97,66 @@ export const CAPACITE_ROW_LABELS = [
     { key: "SoldeMonteurSCLS", label: "Solde SCLS" },
     { key: "SoldeMonteurHTB", label: "Solde HTB" },
 ] as const;
+
+// ============================================================
+// Capacité sections (grouped structure for redesigned header)
+// ============================================================
+
+export interface CapaciteRowDef {
+    key: string;
+    label: string;
+    computed?: boolean;
+    highlight?: boolean;  // solde-style coloring (red/green)
+    bold?: boolean;
+}
+
+export interface CapaciteSection {
+    id: string;
+    label: string;
+    color: string;
+    bgColor: string;
+    rows: CapaciteRowDef[];
+}
+
+export const CAPACITE_SECTIONS: CapaciteSection[] = [
+    {
+        id: "nexans", label: "NEXANS", color: "#000", bgColor: "#E0E0E0",
+        rows: [
+            { key: "MonteursNxFR", label: "Effectif NxFR" },
+            { key: "MonteursNxFR_Dispo", label: "Monteurs NxFR disponible (– CP, Abs, Formation)", computed: true },
+            { key: "BesoinsFrameHF", label: "Besoins Frame et hors frame", computed: true, bold: true },
+            { key: "EffectifDispoFrameHF", label: "Effectif Dispo Frame et hors frame", computed: true, highlight: true },
+            { key: "SoldeNxFR", label: "Solde Effectif NxFR après affectation", highlight: true },
+        ],
+    },
+    {
+        id: "scls", label: "SCLS", color: "#FFF", bgColor: "#00C853",
+        rows: [
+            { key: "NbMonteursSCLS_Dispo", label: "Nombre de monteurs SCLS DISPO" },
+            { key: "SoldeMonteurSCLS", label: "Solde monteur SCLS dispo", highlight: true },
+        ],
+    },
+    {
+        id: "htb", label: "HTB", color: "#FFF", bgColor: "#FF8C00",
+        rows: [
+            { key: "NbMonteursHTB_Dispo", label: "Nombre de monteurs HTB DISPO" },
+            { key: "SoldeMonteurHTB", label: "Solde monteur htb dispo", highlight: true },
+        ],
+    },
+    {
+        id: "improductif", label: "", color: "#000", bgColor: "#F5A623",
+        rows: [
+            { key: "EffectifManquant", label: "Effectif dispo/Improductif incluant les S/T", highlight: true },
+        ],
+    },
+    {
+        id: "rte", label: "RTE / ENEDIS", color: "#000", bgColor: "#E0E0E0",
+        rows: [
+            { key: "TotalBesoinFrame", label: "Total besoin Frame", computed: true, bold: true },
+            { key: "TotalHorsFrame", label: "Total Hors Frame", computed: true },
+        ],
+    },
+];
 
 // ============================================================
 // Layout constants
