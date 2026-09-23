@@ -10,6 +10,7 @@ interface ChartDataPoint {
 interface AnnexeChartProps {
     weeks: IWeekInfo[];
     currentWeek: number;
+    currentYear: number;
     /** Sum of all real affectations NbMonteurs per week */
     weeklyAffectationTotals: Map<number, number>;
     /** Sum of all demande PM NbMonteurs per week */
@@ -22,6 +23,7 @@ const CHART_PADDING = { top: 30, right: 30, bottom: 50, left: 50 };
 const AnnexeChart: React.FC<AnnexeChartProps> = ({
     weeks,
     currentWeek,
+    currentYear,
     weeklyAffectationTotals,
     weeklyDemandeTotals,
 }) => {
@@ -113,7 +115,7 @@ const AnnexeChart: React.FC<AnnexeChartProps> = ({
         <div className="pm-annexe-chart" ref={containerRef}>
             <div className="pm-annexe-chart-header">
                 <span className="pm-annexe-chart-title">
-                    Evolution de la charge de travail — {weeks[0]?.year || ""}
+                    Evolution de la charge de travail — {currentYear}
                 </span>
                 <div className="pm-annexe-chart-legend">
                     <span className="pm-annexe-chart-legend-item">

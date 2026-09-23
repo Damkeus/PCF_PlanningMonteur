@@ -4,9 +4,20 @@ import {
     IPlanningCapacite,
     IPlanningFiabilite,
     IMonteur,
+    IMouvementEquipe,
+    ITabletteChantier,
     PMFilter,
     PMCode,
 } from "../types";
+import {
+    normalizeRows,
+    PLANNING_FIELD_MAP,
+    CAPACITE_FIELD_MAP,
+    FICHE_CHANTIER_FIELD_MAP,
+    FIABILITE_FIELD_MAP,
+    MOUVEMENT_FIELD_MAP,
+    MONTEUR_FIELD_MAP,
+} from "./fieldNameMap";
 
 /**
  * Safe JSON parse with fallback to empty array.
@@ -26,35 +37,76 @@ function safeParseArray<T>(json: string | undefined | null): T[] {
  * Parse planning affectation data from JSON string.
  */
 export function parsePlanningData(json: string | undefined | null): IPlanningAffectation[] {
-    return safeParseArray<IPlanningAffectation>(json);
+    return normalizeRows<IPlanningAffectation>(
+        safeParseArray<unknown>(json),
+        PLANNING_FIELD_MAP,
+        "planningData",
+    );
 }
 
 /**
  * Parse capacité data from JSON string.
  */
 export function parseCapaciteData(json: string | undefined | null): IPlanningCapacite[] {
-    return safeParseArray<IPlanningCapacite>(json);
+    return normalizeRows<IPlanningCapacite>(
+        safeParseArray<unknown>(json),
+        CAPACITE_FIELD_MAP,
+        "capaciteData",
+    );
 }
 
 /**
  * Parse fiche chantier data from JSON string.
  */
 export function parseFicheChantierData(json: string | undefined | null): IFicheChantier[] {
-    return safeParseArray<IFicheChantier>(json);
+    return normalizeRows<IFicheChantier>(
+        safeParseArray<unknown>(json),
+        FICHE_CHANTIER_FIELD_MAP,
+        "ficheChantierData",
+    );
 }
 
 /**
  * Parse fiabilité data from JSON string.
  */
 export function parseFiabiliteData(json: string | undefined | null): IPlanningFiabilite[] {
-    return safeParseArray<IPlanningFiabilite>(json);
+    return normalizeRows<IPlanningFiabilite>(
+        safeParseArray<unknown>(json),
+        FIABILITE_FIELD_MAP,
+        "fiabiliteData",
+    );
 }
 
 /**
  * Parse monteurs data from JSON string.
  */
 export function parseMonteursData(json: string | undefined | null): IMonteur[] {
-    return safeParseArray<IMonteur>(json);
+    return normalizeRows<IMonteur>(
+        safeParseArray<unknown>(json),
+        MONTEUR_FIELD_MAP,
+        "monteursData",
+    );
+}
+
+/**
+ * Parse TabletteChantier data from JSON string.
+ *
+ * Pas de normalisation : les colonnes de cette liste ont un nom interne
+ * correct (MonteurMail, PM, Progress…) — vérifié dans le volet Properties.
+ */
+export function parseTabletteChantierData(json: string | undefined | null): ITabletteChantier[] {
+    return safeParseArray<ITabletteChantier>(json);
+}
+
+/**
+ * Parse mouvement équipe data from JSON string.
+ */
+export function parseMouvementData(json: string | undefined | null): IMouvementEquipe[] {
+    return normalizeRows<IMouvementEquipe>(
+        safeParseArray<unknown>(json),
+        MOUVEMENT_FIELD_MAP,
+        "mouvementData",
+    );
 }
 
 /**
@@ -88,23 +140,26 @@ export function parseAvailablePMs(json: string | undefined | null): string[] {
 
 /**
  * Filter projects based on PM filter selection.
+ *
+ * Le statut "Hors Marché Cadre" est porté par IsHorsMarche, indépendamment
+ * du PM : un projet marché cadre sans PM attribué doit rester visible dans
+ * "ALL" (pour pouvoir lui attribuer un PM), alors qu'un projet Hors Marché
+ * Cadre reste dans son propre filtre même s'il a un PM.
  */
 export function filterProjects(
     projects: IFicheChantier[],
     filter: PMFilter
 ): IFicheChantier[] {
-    const pmCodes: PMCode[] = ["JC", "GP", "DW", "VB"];
-
     switch (filter) {
         case "ALL":
-            return projects.filter(p => p.PM && pmCodes.includes(p.PM));
+            return projects.filter(p => !p.IsHorsMarche);
         case "JC":
         case "GP":
         case "DW":
         case "VB":
-            return projects.filter(p => p.PM === filter);
+            return projects.filter(p => p.PM === filter && !p.IsHorsMarche);
         case "HMC":
-            return projects.filter(p => !p.PM || !pmCodes.includes(p.PM));
+            return projects.filter(p => p.IsHorsMarche);
         case "ALL_HMC":
             return projects;
         default:

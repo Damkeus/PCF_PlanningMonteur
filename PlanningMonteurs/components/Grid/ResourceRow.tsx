@@ -20,6 +20,8 @@ interface ResourceRowProps {
     weekCellWidth: number;
     movementDirection?: "left" | "right" | null;
     dragStyle?: React.CSSProperties;
+    isEditMode?: boolean;
+    onMoveAffectation?: (affectation: IPlanningAffectation, direction: -1 | 1) => void;
 }
 
 const ResourceRow: React.FC<ResourceRowProps> = ({
@@ -38,6 +40,8 @@ const ResourceRow: React.FC<ResourceRowProps> = ({
     weekCellWidth,
     movementDirection,
     dragStyle,
+    isEditMode,
+    onMoveAffectation,
 }) => {
     const { resourceType, fiabilite, weekData } = resourceLine;
 
@@ -92,25 +96,32 @@ const ResourceRow: React.FC<ResourceRowProps> = ({
                 ) : null}
             </div>
             <div className="pm-resource-row-right" style={dragStyle}>
-                {weeks.map((w) => (
-                    <WeekCell
-                        key={w.weekNumber}
-                        affectation={weekData.get(w.weekNumber)}
-                        resourceType={resourceType}
-                        weekNumber={w.weekNumber}
-                        year={year}
-                        projectUniqID={projectUniqID}
-                        isCurrentWeek={w.weekNumber === currentWeek}
-                        isAdmin={isAdmin}
-                        onSave={onSaveAffectation}
-                        onDelete={onDeleteAffectation}
-                        pm={pm}
-                        isHorsMarche={isHorsMarche}
-                        project={project}
-                        weekCellWidth={weekCellWidth}
-                        movementDirection={movementDirection}
-                    />
-                ))}
+                {weeks.map((w) => {
+                    const aff = weekData.get(w.weekNumber);
+                    return (
+                        <WeekCell
+                            key={w.weekNumber}
+                            affectation={aff}
+                            resourceType={resourceType}
+                            weekNumber={w.weekNumber}
+                            year={year}
+                            projectUniqID={projectUniqID}
+                            isCurrentWeek={w.weekNumber === currentWeek}
+                            isAdmin={isAdmin}
+                            onSave={onSaveAffectation}
+                            onDelete={onDeleteAffectation}
+                            pm={pm}
+                            isHorsMarche={isHorsMarche}
+                            project={project}
+                            weekCellWidth={weekCellWidth}
+                            movementDirection={movementDirection}
+                            isEditMode={isEditMode}
+                            onMoveCell={aff && onMoveAffectation
+                                ? (dir) => onMoveAffectation(aff, dir)
+                                : undefined}
+                        />
+                    );
+                })}
             </div>
         </div>
     );

@@ -6,6 +6,7 @@ const RESOURCE_FILL_COLORS: Record<ResourceType, string> = {
     NxFR: "00BFFF",
     HTB: "FF8C00",
     SCLS: "00C853",
+    NxsBe: "7C4DFF",
 };
 
 interface SummaryRow {

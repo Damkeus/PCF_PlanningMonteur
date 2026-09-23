@@ -120,7 +120,7 @@ const AnnexeView: React.FC<AnnexeViewProps> = ({
 
     // Summary rows: total per resource type per week
     const summaryRows = React.useMemo(() => {
-        const types: ResourceType[] = ["NxFR", "HTB", "SCLS"];
+        const types: ResourceType[] = ["NxFR", "HTB", "SCLS", "NxsBe"];
         return types.map(rt => {
             const weekTotals = new Map<number, number>();
             let total = 0;
@@ -327,6 +327,7 @@ const AnnexeView: React.FC<AnnexeViewProps> = ({
                 <AnnexeChart
                     weeks={weeks}
                     currentWeek={currentWeek}
+                    currentYear={currentYear}
                     weeklyAffectationTotals={weeklyAffectationTotals}
                     weeklyDemandeTotals={weeklyDemandeTotals}
                 />

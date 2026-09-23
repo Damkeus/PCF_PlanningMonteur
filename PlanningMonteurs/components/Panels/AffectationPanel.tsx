@@ -11,18 +11,21 @@ import { RESOURCE_COLORS, FIABILITE_COLORS } from "../Shared/constants";
 interface AffectationPanelProps {
     visible: boolean;
     ficheChantierData: IFicheChantier[];
+    fiabiliteData: IPlanningFiabilite[];
     currentYear: number;
     onClose: () => void;
     onSaveAffectation: (record: IPlanningAffectation) => void;
     onSaveFiabilite: (record: IPlanningFiabilite) => void;
 }
 
-const RESOURCE_TYPES: ResourceType[] = ["NxFR", "HTB", "SCLS"];
+const RESOURCE_TYPES: ResourceType[] = ["NxFR", "HTB", "SCLS", "NxsBe"];
 const FIABILITE_LEVELS: FiabiliteLevel[] = ["A+", "A", "A-", "Refusé"];
+const DEFAULT_FIABILITE: FiabiliteLevel = "A";
 
 const AffectationPanel: React.FC<AffectationPanelProps> = ({
     visible,
     ficheChantierData,
+    fiabiliteData,
     currentYear,
     onClose,
     onSaveAffectation,
@@ -46,6 +49,24 @@ const AffectationPanel: React.FC<AffectationPanelProps> = ({
     }, [ficheChantierData]);
 
     const selectedProject = ficheChantierData.find(p => p.ProjectUniqID === selectedProjectID);
+
+    // Edit mode: pre-load the existing fiabilité note for the selected
+    // project + resource so the admin patches the current value instead of
+    // blindly overwriting it with the default.
+    const existingFiabilite = React.useMemo(
+        () =>
+            fiabiliteData.find(
+                f =>
+                    f.ProjectUniqID === selectedProjectID &&
+                    f.ResourceType === selectedResourceType
+            ),
+        [fiabiliteData, selectedProjectID, selectedResourceType]
+    );
+
+    React.useEffect(() => {
+        setSelectedFiabilite(existingFiabilite ? existingFiabilite.Fiabilite : DEFAULT_FIABILITE);
+        setCommentaire(existingFiabilite && existingFiabilite.Commentaire ? existingFiabilite.Commentaire : "");
+    }, [existingFiabilite]);
 
     const handleSubmit = () => {
         if (!selectedProject) return;

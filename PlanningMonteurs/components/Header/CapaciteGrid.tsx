@@ -1,6 +1,6 @@
 import * as React from "react";
-import { IPlanningCapacite, IPlanningAffectation, IFicheChantier, IWeekInfo } from "../../types";
-import { CAPACITE_SECTIONS, CapaciteSection, CapaciteRowDef } from "../Shared/constants";
+import { IPlanningCapacite, IPlanningAffectation, IFicheChantier, IWeekInfo, ICustomCapaciteSection } from "../../types";
+import { CAPACITE_SECTIONS, CapaciteSection, CapaciteRowDef, makeCustomValueKey } from "../Shared/constants";
 import { getSoldeColor } from "../../utils/colorUtils";
 import CommentEditor from "../Shared/CommentEditor";
 
@@ -15,6 +15,9 @@ interface CapaciteGridProps {
     scrollRef: React.RefObject<HTMLDivElement>;
     onScroll: (e: React.UIEvent<HTMLDivElement>) => void;
     weekCellWidth: number;
+    customSections?: ICustomCapaciteSection[];
+    customValues: Record<string, number>;
+    onCustomValueChange: (key: string, value: number) => void;
 }
 
 /** Keys from IPlanningCapacite that can be edited directly */
@@ -39,6 +42,9 @@ const CapaciteGrid: React.FC<CapaciteGridProps> = ({
     scrollRef,
     onScroll,
     weekCellWidth,
+    customSections = [],
+    customValues,
+    onCustomValueChange,
 }) => {
     const [editingCell, setEditingCell] = React.useState<{ row: string; week: number } | null>(null);
     const [editValue, setEditValue] = React.useState("");
@@ -77,7 +83,8 @@ const CapaciteGrid: React.FC<CapaciteGridProps> = ({
 
     const handleCellClick = (rowKey: string, weekNumber: number, isComputed: boolean) => {
         if (!isAdmin || isComputed) return;
-        if (!EDITABLE_KEYS.has(rowKey)) return;
+        // Custom section rows are always editable for admins
+        if (!rowKey.startsWith("cust_") && !EDITABLE_KEYS.has(rowKey)) return;
         const cap = capaciteMap.get(weekNumber);
         const currentValue = cap ? (cap as unknown as Record<string, unknown>)[rowKey] : 0;
         setEditingCell({ row: rowKey, week: weekNumber });
@@ -88,6 +95,15 @@ const CapaciteGrid: React.FC<CapaciteGridProps> = ({
         if (!editingCell) return;
         const { row, week } = editingCell;
         const num = parseFloat(editValue) || 0;
+
+        // Custom section keys go to localStorage, not Power Apps
+        if (row.startsWith("cust_")) {
+            const year = weeks[0]?.year || new Date().getFullYear();
+            onCustomValueChange(makeCustomValueKey(year, week, row), num);
+            setEditingCell(null);
+            return;
+        }
+
         const existing = capaciteMap.get(week);
         const record: IPlanningCapacite = {
             ...(existing || {
@@ -113,6 +129,12 @@ const CapaciteGrid: React.FC<CapaciteGridProps> = ({
 
     /** Get cell value — handles both stored and computed keys */
     const getCellValue = (rowKey: string, weekNumber: number): number => {
+        // Custom section keys read from in-memory custom values
+        if (rowKey.startsWith("cust_")) {
+            const year = weeks[0]?.year || new Date().getFullYear();
+            return customValues[makeCustomValueKey(year, weekNumber, rowKey)] ?? 0;
+        }
+
         const cap = capaciteMap.get(weekNumber);
         const agg = weeklyAggregates.get(weekNumber);
 
@@ -258,7 +280,6 @@ const CapaciteGrid: React.FC<CapaciteGridProps> = ({
 
             {CAPACITE_SECTIONS.map((section) => (
                 <div key={section.id} className="pm-capacite-section">
-                    {/* Section label on the left */}
                     {section.label && (
                         <div
                             className="pm-capacite-section-header"
@@ -270,6 +291,34 @@ const CapaciteGrid: React.FC<CapaciteGridProps> = ({
                     <div className={`pm-capacite-section-rows ${!section.label ? "pm-capacite-section-rows--no-header" : ""}`}>
                         {section.rows.map((rowDef, idx) =>
                             renderRow(rowDef, section, section === CAPACITE_SECTIONS[0] && idx === 0)
+                        )}
+                    </div>
+                </div>
+            ))}
+
+            {/* Custom sections added by admin */}
+            {customSections.map((cs) => (
+                <div key={cs.id} className="pm-capacite-section pm-capacite-section--custom">
+                    <div
+                        className="pm-capacite-section-header"
+                        style={{ backgroundColor: cs.bgColor, color: cs.color }}
+                    >
+                        {cs.label}
+                    </div>
+                    <div className="pm-capacite-section-rows">
+                        {cs.rows.map(rowDef =>
+                            renderRow(
+                                { key: rowDef.key, label: rowDef.label, highlight: rowDef.highlight, bold: rowDef.bold },
+                                { id: cs.id, label: cs.label, color: cs.color, bgColor: cs.bgColor, rows: [] } as CapaciteSection,
+                                false
+                            )
+                        )}
+                        {cs.rows.length === 0 && (
+                            <div className="pm-capacite-row pm-capacite-custom-empty">
+                                <div className="pm-capacite-row-left">
+                                    <span className="pm-capacite-label" style={{ color: "#BDBDBD" }}>Aucune ligne — éditez les ressources</span>
+                                </div>
+                            </div>
                         )}
                     </div>
                 </div>

@@ -1,6 +1,7 @@
 import * as React from "react";
-import { IProjectBlock, IWeekInfo, IPlanningAffectation, IPlanningFiabilite } from "../../types";
-import { PROJECT_STATUS_COLORS } from "../Shared/constants";
+import { IProjectBlock, IWeekInfo, IPlanningAffectation, IPlanningFiabilite, IFicheChantier, PMCode } from "../../types";
+import { PROJECT_STATUS_COLORS, PM_LABELS } from "../Shared/constants";
+import { getResourceColor } from "../../utils/colorUtils";
 import { useDraggable } from "@dnd-kit/core";
 import ResourceRow from "./ResourceRow";
 import WeekCell from "./WeekCell";
@@ -15,12 +16,15 @@ interface ProjectRowProps {
     deltaWeeks: number;
     highlighted?: boolean;
     weekCellWidth: number;
+    availablePMs: string[];
     onSaveAffectation: (record: IPlanningAffectation) => void;
     onSaveFiabilite: (record: IPlanningFiabilite) => void;
+    onSaveFicheChantier?: (record: IFicheChantier) => void;
     onDeleteAffectation: (id: number) => void;
     onToggleExpand: (projectUniqID: string) => void;
     onResetMovement: () => void;
     onShift: (delta: number) => void;
+    onMoveAffectation?: (affectation: IPlanningAffectation, direction: -1 | 1) => void;
 }
 
 /**
@@ -35,19 +39,32 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
     isEditMode,
     deltaWeeks,
     highlighted,
+    availablePMs,
     onSaveAffectation,
     onSaveFiabilite,
+    onSaveFicheChantier,
     onDeleteAffectation,
     onToggleExpand,
     onResetMovement,
     onShift,
     weekCellWidth,
+    onMoveAffectation,
 }) => {
     const { project, resourceLines, demandePMLine, isExpanded, status } = projectBlock;
     const pm = project.PM || null;
     const isHorsMarche = !project.CDC;
     const statusConfig = PROJECT_STATUS_COLORS[status];
     const [contextMenu, setContextMenu] = React.useState<{ x: number; y: number } | null>(null);
+    const [hiddenResources, setHiddenResources] = React.useState<Set<string>>(new Set());
+
+    const toggleResourceVisibility = (rt: string) => {
+        setHiddenResources(prev => {
+            const next = new Set(prev);
+            if (next.has(rt)) next.delete(rt);
+            else next.add(rt);
+            return next;
+        });
+    };
 
     // DnD — horizontal drag for project shifting
     const canDrag = isEditMode || !isAdmin;
@@ -109,6 +126,7 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
         <div
             className={`pm-project-row ${isExpanded ? "pm-project-row--expanded" : "pm-project-row--collapsed"} ${isDragging ? "pm-project-row--dragging" : ""}`}
             style={rowHighlightStyle}
+            data-project-id={project.ProjectUniqID}
         >
             {/* Project header */}
             <div
@@ -151,21 +169,50 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
                     </span>
                     <div className="pm-project-info">
                         <div className="pm-project-title-row">
-                            {/* Status card on project ID */}
+                            {/* Status dot (remplace l'ancien badge FRH — le titre passe devant) */}
                             <span
-                                className="pm-project-status-card"
+                                className="pm-project-status-dot-standalone"
                                 style={{
-                                    backgroundColor: statusConfig.bg,
-                                    borderColor: statusConfig.border,
+                                    backgroundColor: statusConfig.border,
                                     borderStyle: statusConfig.borderStyle || "solid",
-                                    color: statusConfig.text,
                                 }}
                                 title={statusConfig.label}
-                            >
-                                <span className="pm-project-status-dot" style={{ backgroundColor: statusConfig.border }} />
-                                {project.NumProjet}
-                            </span>
+                            />
                             <span className="pm-project-title">{project.Title}</span>
+
+                            {/* Liaison badge — regroupe FRH + indicateur de liaison quand le projet
+                                partage un N° de commande avec d'autres projets */}
+                            {project.LiaisonGroup ? (
+                                <span className="pm-project-liaison-chip" title={`Liaison — N° commande ${project.NumProjet}`}>
+                                    ⛓ Liaison · {project.NumProjet}
+                                </span>
+                            ) : project.NumProjet ? (
+                                <span className="pm-project-frh-chip" title="N° de commande">
+                                    {project.NumProjet}
+                                </span>
+                            ) : null}
+
+                            {/* Attribution PM en ligne — visible pour tous (PM et admin) tant qu'aucun PM n'est attribué */}
+                            {!project.PM && onSaveFicheChantier && (
+                                <select
+                                    className="pm-project-pm-select"
+                                    value=""
+                                    onClick={(e) => e.stopPropagation()}
+                                    onPointerDown={(e) => e.stopPropagation()}
+                                    onChange={(e) => {
+                                        const newPM = e.target.value as PMCode;
+                                        if (newPM) onSaveFicheChantier({ ...project, PM: newPM });
+                                    }}
+                                    title="Attribuer un PM à ce projet"
+                                >
+                                    <option value="">⚠ Attribuer PM ▾</option>
+                                    {availablePMs.map((code) => (
+                                        <option key={code} value={code}>
+                                            {PM_LABELS[code as PMCode] ?? code} ({code})
+                                        </option>
+                                    ))}
+                                </select>
+                            )}
 
                             {/* Movement badge */}
                             {deltaWeeks !== 0 && (
@@ -209,51 +256,86 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
                         <span className="pm-resource-type-label pm-resource-type-label--demande">Demande PM</span>
                     </div>
                     <div className="pm-resource-row-right" style={dragStyle}>
-                        {weeks.map((w) => (
-                            <WeekCell
-                                key={w.weekNumber}
-                                affectation={demandePMLine.weekData.get(w.weekNumber)}
-                                resourceType="NxFR"
-                                weekNumber={w.weekNumber}
-                                year={year}
-                                projectUniqID={project.ProjectUniqID}
-                                isCurrentWeek={w.weekNumber === currentWeek}
-                                isAdmin={isAdmin}
-                                isDemandePM={true}
-                                onSave={onSaveAffectation}
-                                onDelete={onDeleteAffectation}
-                                pm={pm}
-                                isHorsMarche={isHorsMarche}
-                                project={project}
-                                weekCellWidth={weekCellWidth}
-                                movementDirection={movementDirection}
-                            />
-                        ))}
+                        {weeks.map((w) => {
+                            const aff = demandePMLine.weekData.get(w.weekNumber);
+                            return (
+                                <WeekCell
+                                    key={w.weekNumber}
+                                    affectation={aff}
+                                    resourceType="NxFR"
+                                    weekNumber={w.weekNumber}
+                                    year={year}
+                                    projectUniqID={project.ProjectUniqID}
+                                    isCurrentWeek={w.weekNumber === currentWeek}
+                                    isAdmin={isAdmin}
+                                    isDemandePM={true}
+                                    onSave={onSaveAffectation}
+                                    onDelete={onDeleteAffectation}
+                                    pm={pm}
+                                    isHorsMarche={isHorsMarche}
+                                    project={project}
+                                    weekCellWidth={weekCellWidth}
+                                    movementDirection={movementDirection}
+                                    isEditMode={isEditMode}
+                                    onMoveCell={aff && onMoveAffectation
+                                        ? (dir) => onMoveAffectation(aff, dir)
+                                        : undefined}
+                                />
+                            );
+                        })}
                     </div>
                 </div>
             )}
 
             {/* Resource rows (visible when expanded) */}
-            {isExpanded && resourceLines.map((rl) => (
-                <ResourceRow
-                    key={rl.resourceType}
-                    resourceLine={rl}
-                    weeks={weeks}
-                    currentWeek={currentWeek}
-                    isAdmin={isAdmin}
-                    projectUniqID={project.ProjectUniqID}
-                    year={year}
-                    pm={pm}
-                    isHorsMarche={isHorsMarche}
-                    onSaveAffectation={onSaveAffectation}
-                    onSaveFiabilite={onSaveFiabilite}
-                    onDeleteAffectation={onDeleteAffectation}
-                    project={project}
-                    weekCellWidth={weekCellWidth}
-                    movementDirection={movementDirection}
-                    dragStyle={dragStyle}
-                />
-            ))}
+            {isExpanded && resourceLines.map((rl) => {
+                const isHidden = hiddenResources.has(rl.resourceType);
+                return (
+                    <div key={rl.resourceType} className="pm-resource-row-wrapper">
+                        {/* Split toggle bar — separates individual resource */}
+                        <div className="pm-resource-split-bar">
+                            <button
+                                className={`pm-resource-split-btn ${isHidden ? "pm-resource-split-btn--hidden" : ""}`}
+                                onClick={() => toggleResourceVisibility(rl.resourceType)}
+                                type="button"
+                                title={isHidden ? `Afficher ${rl.resourceType}` : `Masquer ${rl.resourceType}`}
+                            >
+                                {isHidden ? "▸" : "▾"}
+                            </button>
+                        </div>
+                        {!isHidden && (
+                            <ResourceRow
+                                resourceLine={rl}
+                                weeks={weeks}
+                                currentWeek={currentWeek}
+                                isAdmin={isAdmin}
+                                projectUniqID={project.ProjectUniqID}
+                                year={year}
+                                pm={pm}
+                                isHorsMarche={isHorsMarche}
+                                onSaveAffectation={onSaveAffectation}
+                                onSaveFiabilite={onSaveFiabilite}
+                                onDeleteAffectation={onDeleteAffectation}
+                                project={project}
+                                weekCellWidth={weekCellWidth}
+                                movementDirection={movementDirection}
+                                dragStyle={dragStyle}
+                                isEditMode={isEditMode}
+                                onMoveAffectation={onMoveAffectation}
+                            />
+                        )}
+                        {isHidden && (
+                            <div className="pm-resource-row-collapsed">
+                                <div
+                                    className="pm-resource-type-indicator"
+                                    style={{ backgroundColor: getResourceColor(rl.resourceType), opacity: 0.5 }}
+                                />
+                                <span className="pm-resource-type-label pm-resource-type-label--collapsed">{rl.resourceType} — masqué</span>
+                            </div>
+                        )}
+                    </div>
+                );
+            })}
         </div>
     );
 };

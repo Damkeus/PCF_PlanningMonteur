@@ -9,6 +9,7 @@ export const RESOURCE_COLORS: Record<ResourceType, string> = {
     NxFR: "#00BFFF",
     HTB: "#FF8C00",
     SCLS: "#00C853",
+    NxsBe: "#7C4DFF",
 };
 
 /** ResourceType → semi-opaque background for cells */
@@ -16,6 +17,7 @@ export const RESOURCE_BG_COLORS: Record<ResourceType, string> = {
     NxFR: "rgba(0, 191, 255, 0.18)",
     HTB: "rgba(255, 140, 0, 0.18)",
     SCLS: "rgba(0, 200, 83, 0.18)",
+    NxsBe: "rgba(124, 77, 255, 0.18)",
 };
 
 /** ResourceType → text color for cells (darker) */
@@ -23,6 +25,7 @@ export const RESOURCE_TEXT_COLORS: Record<ResourceType, string> = {
     NxFR: "#006B99",
     HTB: "#B35F00",
     SCLS: "#007A33",
+    NxsBe: "#5A35B0",
 };
 
 /** Fiabilité → badge color */
@@ -50,6 +53,32 @@ export const PM_LABELS: Record<PMCode, string> = {
     GP: "Grégory Palandre",
     DW: "David Wendling",
     VB: "Virginie Boegler",
+};
+
+// ============================================================
+// PM section grouping (bandeaux type Excel : un bloc coloré par PM)
+// ============================================================
+
+/** Clé de bucket utilisée pour les projets marché cadre sans PM attribué */
+export const UNASSIGNED_PM_KEY = "UNASSIGNED";
+
+/** Ordre d'affichage des sections PM dans la grille */
+export const PM_SECTION_ORDER = [UNASSIGNED_PM_KEY, "JC", "GP", "DW", "VB"] as const;
+
+export interface PMSectionStyle {
+    label: string;
+    bg: string;
+    text: string;
+    accent: string;
+}
+
+/** Bandeau de section par PM — inspiré des blocs colorés de l'Excel source */
+export const PM_SECTION_STYLES: Record<string, PMSectionStyle> = {
+    JC: { label: "Jamal Chamane (JC)", bg: "#16233F", text: "#FFFFFF", accent: "#3B82F6" },
+    GP: { label: "Grégory Palandre (GP)", bg: "#0E3B36", text: "#FFFFFF", accent: "#14B8A6" },
+    DW: { label: "David Wendling (DW)", bg: "#4A1942", text: "#FFFFFF", accent: "#E754A8" },
+    VB: { label: "Virginie Boegler (VB)", bg: "#3D2E12", text: "#FFFFFF", accent: "#D97706" },
+    [UNASSIGNED_PM_KEY]: { label: "Non attribué — PM à sélectionner", bg: "#7A1F1F", text: "#FFFFFF", accent: "#FF6B6B" },
 };
 
 // ============================================================
@@ -185,7 +214,44 @@ export const NEXANS_WHITE = "#FFFFFF";
 // Project status colors (cards on project header)
 // ============================================================
 
-import { ProjectStatus } from "../../types";
+import { ProjectStatus, ICustomCapaciteSection } from "../../types";
+
+// ============================================================
+// Custom capacité sections — localStorage persistence
+// ============================================================
+
+const LS_SECTIONS_KEY = "pm_custom_cap_sections";
+const LS_VALUES_KEY = "pm_custom_cap_values";
+
+export function loadCustomSections(): ICustomCapaciteSection[] {
+    try {
+        const raw = localStorage.getItem(LS_SECTIONS_KEY);
+        return raw ? JSON.parse(raw) : [];
+    } catch {
+        return [];
+    }
+}
+
+export function saveCustomSectionsToStorage(sections: ICustomCapaciteSection[]): void {
+    localStorage.setItem(LS_SECTIONS_KEY, JSON.stringify(sections));
+}
+
+export function loadCustomValues(): Record<string, number> {
+    try {
+        const raw = localStorage.getItem(LS_VALUES_KEY);
+        return raw ? JSON.parse(raw) : {};
+    } catch {
+        return {};
+    }
+}
+
+export function saveCustomValuesToStorage(values: Record<string, number>): void {
+    localStorage.setItem(LS_VALUES_KEY, JSON.stringify(values));
+}
+
+export function makeCustomValueKey(year: number, week: number, rowKey: string): string {
+    return `${year}_${week}_${rowKey}`;
+}
 
 export const PROJECT_STATUS_COLORS: Record<ProjectStatus, { bg: string; border: string; text: string; label: string; borderStyle?: string }> = {
     "non-affecte": { bg: "#FFF3F3", border: "#E30613", text: "#C62828", label: "Non affecté" },

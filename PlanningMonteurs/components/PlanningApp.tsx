@@ -7,6 +7,10 @@ import {
     IPlanningAffectation,
     IPlanningCapacite,
     IPlanningFiabilite,
+    IFicheChantier,
+    ITabletteChantier,
+    IRelinkPayload,
+    ICreateProjectPayload,
     IWeekInfo,
     ResourceType,
     ProjectStatus,
@@ -19,12 +23,19 @@ import CapaciteGrid from "./Header/CapaciteGrid";
 import PlanningGrid from "./Grid/PlanningGrid";
 import AffectationPanel from "./Panels/AffectationPanel";
 import AnnexeView from "./Annexe/AnnexeView";
+import MouvementView from "./Mouvement/MouvementView";
 import Legend from "./Shared/Legend";
-import NotificationToast from "./NotificationToast";
+import NotificationCard from "./NotificationCard";
+import DataQualityCard from "./DataQualityCard";
+import OrphanProjectBanner from "./OrphanProjectBanner";
+import MonteurAttributionPanel from "./Panels/MonteurAttributionPanel";
 import EditModeToggle from "./EditModeToggle";
 import { useNotification } from "../hooks/useNotification";
+import { useDataQuality } from "../hooks/useDataQuality";
 import { useProjectMovement } from "../hooks/useProjectMovement";
-import { LEFT_PANEL_WIDTH, DEFAULT_VISIBLE_WEEKS } from "./Shared/constants";
+import { LEFT_PANEL_WIDTH, DEFAULT_VISIBLE_WEEKS, loadCustomSections, saveCustomSectionsToStorage, loadCustomValues, saveCustomValuesToStorage } from "./Shared/constants";
+import ResourceEditorPanel from "./Admin/ResourceEditorPanel";
+import { ICustomCapaciteSection } from "../types";
 
 const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
     const {
@@ -32,17 +43,26 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
         capaciteData,
         ficheChantierData,
         fiabiliteData,
+        monteursData,
+        mouvementData,
+        tabletteChantierData,
         currentYear,
         currentWeek,
         userRole,
         selectedPMFilter,
         availableYears,
+        availablePMs,
+        isLoading,
         onSaveAffectation,
         onSaveCapacite,
         onSaveFiabilite,
         onDeleteAffectation,
         onFilterChange,
         onYearChange,
+        onSaveFicheChantier,
+        onSaveTabletteChantier,
+        onRelinkProject,
+        onCreateProject,
     } = props;
 
     const isAdmin = userRole === "admin";
@@ -55,7 +75,12 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
     const [isEditMode, setIsEditMode] = React.useState(false);
     const [highlightNonAffectes, setHighlightNonAffectes] = React.useState(false);
     const [pendingShifts, setPendingShifts] = React.useState<Record<string, { delta: number; type: string }>>({});
-    const [currentView, setCurrentView] = React.useState<"planning" | "annexe">("planning");
+    const [currentView, setCurrentView] = React.useState<"planning" | "annexe" | "mouvement">("planning");
+    const [showResourceEditor, setShowResourceEditor] = React.useState(false);
+    const [showMonteurPanel, setShowMonteurPanel] = React.useState(false);
+    const [dataQualityDismissed, setDataQualityDismissed] = React.useState(false);
+    const [customSections, setCustomSections] = React.useState<ICustomCapaciteSection[]>(() => loadCustomSections());
+    const [customValues, setCustomValues] = React.useState<Record<string, number>>(() => loadCustomValues());
 
     // Zoom state: controls how many weeks are visible (10→52)
     const containerRef = React.useRef<HTMLDivElement>(null);
@@ -206,11 +231,21 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
     }, [filteredProjectsList, planningData, fiabiliteData, expandedProjects, pendingShifts]);
 
     // Notification hook (admin only)
-    const { unaffectedCount, isDismissed, dismiss } = useNotification(
+    const { unaffectedCount, unaffectedProjects, isDismissed, dismiss } = useNotification(
         projectBlocks,
         currentWeek
     );
     const showNotification = isAdmin && unaffectedCount > 0 && !isDismissed;
+
+    // Contrôle qualité des données (backfill human-in-the-loop)
+    const { orphanProjects, fichesSansPlanning, pmIssues, adminIssues } = useDataQuality(
+        ficheChantierData,
+        filteredProjectsList,
+        planningData,
+        tabletteChantierData
+    );
+    const dataQualityIssues = isAdmin ? adminIssues : pmIssues;
+    const showDataQuality = dataQualityIssues.length > 0 && !dataQualityDismissed;
 
     // Expand all projects by default on first render
     React.useEffect(() => {
@@ -276,9 +311,55 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
         showToast("Fiabilité sauvegardée");
     };
 
+    const handleSaveFicheChantier = onSaveFicheChantier
+        ? (record: IFicheChantier) => {
+            onSaveFicheChantier(record);
+            showToast(`PM attribué : ${record.PM ?? "—"}`);
+        }
+        : undefined;
+
     const showToast = (message: string) => {
         setToast(message);
         setTimeout(() => setToast(null), 2000);
+    };
+
+    const handleSaveTabletteChantier = onSaveTabletteChantier
+        ? (record: ITabletteChantier) => {
+            onSaveTabletteChantier(record);
+            const count = record.MonteurMail
+                ? record.MonteurMail.split(";").filter((m) => m.trim()).length
+                : 0;
+            showToast(`${count} monteur${count > 1 ? "s" : ""} attribué${count > 1 ? "s" : ""} → TabletteChantier`);
+        }
+        : undefined;
+
+    const handleRelinkProject = onRelinkProject
+        ? (payload: IRelinkPayload) => {
+            onRelinkProject(payload);
+            showToast(`Planning rattaché à « ${payload.newTitle} »`);
+        }
+        : undefined;
+
+    const handleCreateProject = onCreateProject
+        ? (payload: ICreateProjectPayload) => {
+            onCreateProject(payload);
+            showToast("Redirection vers la création de fiche…");
+        }
+        : undefined;
+
+    /**
+     * Move a single affectation record ±1 week, independently of the rest of the project.
+     * Keeps the record ID → Power Apps does an UPDATE not INSERT.
+     */
+    const handleMoveAffectation = (affectation: IPlanningAffectation, direction: -1 | 1) => {
+        const newWeek = affectation.WeekNumber + direction;
+        if (newWeek < 1 || newWeek > 53) return;
+        const updated: IPlanningAffectation = { ...affectation, WeekNumber: newWeek };
+        onSaveAffectation(updated);
+        showToast(direction > 0
+            ? `S${affectation.WeekNumber} → S${newWeek} (+1)`
+            : `S${affectation.WeekNumber} → S${newWeek} (−1)`
+        );
     };
 
     // Handle project move (+1/-1 or DnD)
@@ -329,17 +410,36 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
         showToast(`${patchCount} affectation${patchCount > 1 ? "s" : ""} mise${patchCount > 1 ? "s" : ""} à jour`);
     };
 
-    // Notification "Voir" button — highlight non-affectés
-    const handleViewUnaffected = () => {
+    const handleSaveCustomSections = (sections: ICustomCapaciteSection[]) => {
+        setCustomSections(sections);
+        saveCustomSectionsToStorage(sections);
+        showToast("Ressources sauvegardées");
+    };
+
+    const handleCustomValueChange = (key: string, value: number) => {
+        setCustomValues(prev => {
+            const next = { ...prev, [key]: value };
+            saveCustomValuesToStorage(next);
+            return next;
+        });
+    };
+
+    // Clic sur un projet de la carte de notification : bascule sur la vue
+    // planning, déplie le projet, scrolle jusqu'à lui et le met en évidence.
+    const handleOpenProject = (projectUniqID: string) => {
+        setCurrentView("planning");
+        setExpandedProjects((prev) => {
+            const next = new Set(prev);
+            next.add(projectUniqID);
+            return next;
+        });
         setHighlightNonAffectes(true);
-        // Scroll to first project row
         setTimeout(() => {
-            const firstProjectRow = document.querySelector(".pm-project-row");
-            if (firstProjectRow) {
-                firstProjectRow.scrollIntoView({ behavior: "smooth", block: "start" });
+            const row = document.querySelector(`[data-project-id="${projectUniqID}"]`);
+            if (row) {
+                row.scrollIntoView({ behavior: "smooth", block: "center" });
             }
-        }, 50);
-        dismiss();
+        }, 80);
     };
 
     // Auto-scroll to current week on mount
@@ -364,6 +464,14 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
 
     return (
         <div className="pm-app" ref={containerRef}>
+            {isLoading && (
+                <div className="pm-loading-overlay" role="status" aria-live="polite" aria-busy="true">
+                    <div className="pm-loading-card">
+                        <div className="pm-loading-spinner" />
+                        <span className="pm-loading-text">Chargement du planning…</span>
+                    </div>
+                </div>
+            )}
             <PlanningHeader
                 currentYear={currentYear}
                 currentWeek={currentWeek}
@@ -385,7 +493,18 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
                 visibleWeeks={visibleWeeks}
                 onZoomChange={setVisibleWeeks}
                 isAnnexeView={currentView === "annexe"}
-                onToggleAnnexe={() => setCurrentView(currentView === "planning" ? "annexe" : "planning")}
+                onToggleAnnexe={() => setCurrentView(currentView === "annexe" ? "planning" : "annexe")}
+                isMouvementView={currentView === "mouvement"}
+                onToggleMouvement={() => setCurrentView(currentView === "mouvement" ? "planning" : "mouvement")}
+                onEditResources={isAdmin ? () => setShowResourceEditor(true) : undefined}
+            />
+
+            {/* Bannière chantiers du planning non créés dans l'application */}
+            <OrphanProjectBanner
+                orphanProjects={orphanProjects}
+                fichesSansPlanning={fichesSansPlanning}
+                onCreateProject={handleCreateProject}
+                onRelinkProject={handleRelinkProject}
             />
 
             {/* Legend toggle button */}
@@ -397,6 +516,18 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
             >
                 {showLegend ? "✕ Légende" : "◉ Légende"}
             </button>
+
+            {/* Attribution monteurs (admin) */}
+            {isAdmin && handleSaveTabletteChantier && (
+                <button
+                    className="pm-legend-toggle pm-monteur-toggle"
+                    onClick={() => setShowMonteurPanel(true)}
+                    type="button"
+                    title="Attribuer des monteurs aux chantiers (TabletteChantier)"
+                >
+                    👷 Monteurs
+                </button>
+            )}
 
             <Legend visible={showLegend} onClose={() => setShowLegend(false)} />
 
@@ -413,6 +544,9 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
                         scrollRef={capaciteScrollRef}
                         onScroll={handleCapaciteScroll}
                         weekCellWidth={weekCellWidth}
+                        customSections={customSections}
+                        customValues={customValues}
+                        onCustomValueChange={handleCustomValueChange}
                     />
 
                     <div className="pm-separator" />
@@ -426,13 +560,16 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
                         isEditMode={isEditMode}
                         highlightNonAffectes={highlightNonAffectes}
                         projectMovements={movements}
+                        availablePMs={availablePMs}
                         onSaveAffectation={handleSaveAffectation}
                         onDeleteAffectation={handleDeleteAffectation}
                         onSaveFiabilite={handleSaveFiabilite}
+                        onSaveFicheChantier={handleSaveFicheChantier}
                         onToggleExpand={handleToggleExpand}
                         onAddProject={() => setShowAddPanel(true)}
                         onMoveProject={handleMoveProject}
                         onResetProject={resetProject}
+                        onMoveAffectation={handleMoveAffectation}
                         scrollRef={gridHeaderScrollRef}
                         onScroll={handleGridScroll}
                         bodyScrollRef={gridBodyScrollRef}
@@ -443,13 +580,14 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
                     <AffectationPanel
                         visible={showAddPanel}
                         ficheChantierData={ficheChantierData}
+                        fiabiliteData={fiabiliteData}
                         currentYear={currentYear}
                         onClose={() => setShowAddPanel(false)}
                         onSaveAffectation={handleSaveAffectation}
                         onSaveFiabilite={handleSaveFiabilite}
                     />
                 </>
-            ) : (
+            ) : currentView === "annexe" ? (
                 <AnnexeView
                     planningData={planningData}
                     ficheChantierData={ficheChantierData}
@@ -458,16 +596,56 @@ const PlanningApp: React.FC<IPlanningAppProps> = (props) => {
                     weeks={weeks}
                     weekCellWidth={weekCellWidth}
                 />
+            ) : (
+                <MouvementView
+                    mouvementData={mouvementData}
+                    planningData={planningData}
+                    currentYear={currentYear}
+                    currentWeek={currentWeek}
+                    weeks={weeks}
+                    weekCellWidth={weekCellWidth}
+                />
             )}
 
-            {/* Admin notification toast */}
+            {/* Admin notification card — demandes PM sans affectation réelle */}
             {showNotification && (
-                <NotificationToast
-                    count={unaffectedCount}
-                    onView={handleViewUnaffected}
+                <NotificationCard
+                    projects={unaffectedProjects}
+                    onOpenProject={handleOpenProject}
                     onDismiss={dismiss}
                 />
             )}
+
+            {/* Notification qualité de données — infos importantes non complétées */}
+            {showDataQuality && !showNotification && (
+                <DataQualityCard
+                    title={isAdmin ? "Attributions à compléter" : "Vos projets à compléter"}
+                    issues={dataQualityIssues}
+                    onOpenProject={handleOpenProject}
+                    onDismiss={() => setDataQualityDismissed(true)}
+                />
+            )}
+
+            {/* Panneau attribution monteurs (admin) */}
+            {isAdmin && handleSaveTabletteChantier && (
+                <MonteurAttributionPanel
+                    visible={showMonteurPanel}
+                    ficheChantierData={ficheChantierData}
+                    monteursData={monteursData}
+                    tabletteChantierData={tabletteChantierData}
+                    currentYear={currentYear}
+                    onClose={() => setShowMonteurPanel(false)}
+                    onSaveTabletteChantier={handleSaveTabletteChantier}
+                />
+            )}
+
+            {/* Resource editor panel (admin) */}
+            <ResourceEditorPanel
+                visible={showResourceEditor}
+                sections={customSections}
+                onClose={() => setShowResourceEditor(false)}
+                onSave={handleSaveCustomSections}
+            />
 
             {/* Toast notification */}
             {toast && (

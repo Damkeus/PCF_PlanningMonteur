@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <manifest>
-  <control namespace="Nexans" constructor="PlanningMonteurs" version="0.0.1" display-name-key="PlanningMonteurs" description-key="Planning Monteurs Nexans - Gantt hebdomadaire" control-type="standard">
+  <control namespace="nex" constructor="PlanningMonteurs" version="0.2.0" display-name-key="PlanningMonteurs" description-key="Planning Monteurs Nexans - Gantt hebdomadaire" control-type="standard">
     <external-service-usage enabled="false">
     </external-service-usage>
 
@@ -10,6 +10,8 @@
     <property name="ficheChantierData" display-name-key="Fiche Chantier Data" description-key="JSON array of FicheChantier records" of-type="Multiple" usage="input" required="false" />
     <property name="fiabiliteData" display-name-key="Fiabilite Data" description-key="JSON array of PlanningFiabilite records" of-type="Multiple" usage="input" required="false" />
     <property name="monteursData" display-name-key="Monteurs Data" description-key="JSON array of Monteur records" of-type="Multiple" usage="input" required="false" />
+    <property name="mouvementData" display-name-key="Mouvement Equipe Data" description-key="JSON array of MouvementEquipe records (absences + detachements)" of-type="Multiple" usage="input" required="false" />
+    <property name="tabletteChantierData" display-name-key="Tablette Chantier Data" description-key="JSON array of TabletteChantier records {ID, Title, ProjectUniqID, MonteurMail, PM} - MonteurMail = emails separes par ;" of-type="Multiple" usage="input" required="false" />
 
     <!-- INPUT: Configuration -->
     <property name="currentYear" display-name-key="Current Year" description-key="Year to display" of-type="Whole.None" usage="input" required="false" />
@@ -23,7 +25,11 @@
     <property name="onSaveAffectation" display-name-key="On Save Affectation" description-key="JSON of saved affectation record" of-type="Multiple" usage="output" />
     <property name="onSaveCapacite" display-name-key="On Save Capacite" description-key="JSON of saved capacite record" of-type="Multiple" usage="output" />
     <property name="onSaveFiabilite" display-name-key="On Save Fiabilite" description-key="JSON of saved fiabilite record" of-type="Multiple" usage="output" />
+    <property name="onSaveFicheChantier" display-name-key="On Save Fiche Chantier" description-key="JSON of the FicheChantier record when a PM is attributed to an unassigned project" of-type="Multiple" usage="output" />
     <property name="onDeleteAffectation" display-name-key="On Delete Affectation" description-key="JSON with ID of record to delete" of-type="Multiple" usage="output" />
+    <property name="onSaveTabletteChantier" display-name-key="On Save Tablette Chantier" description-key="JSON {ID?, Title, ProjectUniqID, MonteurMail, PM} emis quand l admin attribue des monteurs - OnChange: Patch TabletteChantier (creer si inexistant, sinon MAJ MonteurMail)" of-type="Multiple" usage="output" />
+    <property name="onRelinkProject" display-name-key="On Relink Project" description-key="JSON {oldProjectUniqID, newProjectUniqID, newTitle} emis lors du rattachement d un projet planning orphelin a une fiche chantier - OnChange: UpdateIf des listes planning (le planning adopte l ID de la fiche)" of-type="Multiple" usage="output" />
+    <property name="onCreateProject" display-name-key="On Create Project" description-key="JSON {ProjectUniqID, Title} emis quand l utilisateur clique Creer la fiche sur la banniere chantier non cree - OnChange: Set contexte + Navigate(PageAvp)" of-type="Multiple" usage="output" />
     <property name="eventName" display-name-key="Event Name" description-key="Name of the last event emitted" of-type="SingleLine.Text" usage="output" />
 
     <resources>

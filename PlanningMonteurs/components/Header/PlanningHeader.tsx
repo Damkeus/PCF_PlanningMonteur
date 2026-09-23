@@ -17,6 +17,9 @@ interface PlanningHeaderProps {
     onZoomChange: (weeks: number) => void;
     isAnnexeView?: boolean;
     onToggleAnnexe?: () => void;
+    isMouvementView?: boolean;
+    onToggleMouvement?: () => void;
+    onEditResources?: () => void;
 }
 
 const PlanningHeader: React.FC<PlanningHeaderProps> = ({
@@ -34,6 +37,9 @@ const PlanningHeader: React.FC<PlanningHeaderProps> = ({
     onZoomChange,
     isAnnexeView,
     onToggleAnnexe,
+    isMouvementView,
+    onToggleMouvement,
+    onEditResources,
 }) => {
     const yearOptions = availableYears.length > 0
         ? availableYears
@@ -58,6 +64,18 @@ const PlanningHeader: React.FC<PlanningHeaderProps> = ({
             </div>
 
             <div className="pm-header-right">
+                {/* Edit resources button (admin only) */}
+                {isAdmin && onEditResources && (
+                    <button
+                        className="pm-edit-resources-btn"
+                        onClick={onEditResources}
+                        type="button"
+                        title="Gérer les ressources du tableau de charge"
+                    >
+                        ⚙ Ressources
+                    </button>
+                )}
+
                 {/* Edit mode toggle (admin only) */}
                 {editModeToggle}
 
@@ -70,6 +88,18 @@ const PlanningHeader: React.FC<PlanningHeaderProps> = ({
                         title="Enregistrer les déplacements"
                     >
                         <span className="pm-save-btn-icon">💾</span>
+                    </button>
+                )}
+
+                {/* Mouvement équipes toggle button */}
+                {onToggleMouvement && (
+                    <button
+                        className={`pm-annexe-btn pm-mouvement-btn ${isMouvementView ? "pm-annexe-btn--active" : ""}`}
+                        onClick={onToggleMouvement}
+                        type="button"
+                        title={isMouvementView ? "Retour Planning" : "Voir Mouvement équipes"}
+                    >
+                        {isMouvementView ? "← Planning" : "⇄ Mouvement équipes"}
                     </button>
                 )}
 

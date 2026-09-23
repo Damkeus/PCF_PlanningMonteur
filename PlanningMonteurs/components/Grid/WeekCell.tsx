@@ -21,6 +21,10 @@ interface WeekCellProps {
     project?: IFicheChantier;
     weekCellWidth: number;
     movementDirection?: "left" | "right" | null;
+    /** Edit mode: enables individual cell move arrows */
+    isEditMode?: boolean;
+    /** Move this single cell ±1 week */
+    onMoveCell?: (direction: -1 | 1) => void;
 }
 
 const WeekCell: React.FC<WeekCellProps> = ({
@@ -39,6 +43,8 @@ const WeekCell: React.FC<WeekCellProps> = ({
     project,
     weekCellWidth,
     movementDirection,
+    isEditMode,
+    onMoveCell,
 }) => {
     const [isEditing, setIsEditing] = React.useState(false);
     const [editValue, setEditValue] = React.useState("");
@@ -181,6 +187,26 @@ const WeekCell: React.FC<WeekCellProps> = ({
                     title="Supprimer"
                     type="button"
                 >×</button>
+            )}
+
+            {/* Individual cell move arrows — edit mode only, filled cells */}
+            {isEditMode && canEdit && hasMonteurs && !isEditing && onMoveCell && (
+                <>
+                    <button
+                        className="pm-week-cell-move pm-week-cell-move--left"
+                        onClick={e => { e.stopPropagation(); onMoveCell(-1); }}
+                        onPointerDown={e => e.stopPropagation()}
+                        type="button"
+                        title="Avancer cette semaine d'1 sem."
+                    >◄</button>
+                    <button
+                        className="pm-week-cell-move pm-week-cell-move--right"
+                        onClick={e => { e.stopPropagation(); onMoveCell(1); }}
+                        onPointerDown={e => e.stopPropagation()}
+                        type="button"
+                        title="Décaler cette semaine d'1 sem."
+                    >►</button>
+                </>
             )}
 
             {/* Comment mini-card — visible to EVERYONE */}

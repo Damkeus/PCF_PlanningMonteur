@@ -16,6 +16,10 @@ export interface IFicheChantier {
     CDC: boolean;
     DateDebutSemaine?: number;  // Semaine ISO de début (pour DnD)
     DateFinSemaine?: number;    // Semaine ISO de fin (pour DnD)
+    /** Clé de regroupement des liaisons partageant un même N° de commande (ex. "H42093") */
+    LiaisonGroup?: string | null;
+    /** true = projet Hors Marché Cadre (distinct d'un simple PM manquant à attribuer) */
+    IsHorsMarche?: boolean;
 }
 
 /** Affectation (lecture/écriture) */
@@ -54,6 +58,22 @@ export interface IPlanningCapacite {
     Commentaire?: string | null;
 }
 
+/** Section personnalisée du tableau de charge (config admin) */
+export interface ICustomCapaciteRow {
+    key: string;
+    label: string;
+    highlight?: boolean;
+    bold?: boolean;
+}
+
+export interface ICustomCapaciteSection {
+    id: string;
+    label: string;
+    color: string;
+    bgColor: string;
+    rows: ICustomCapaciteRow[];
+}
+
 /** Fiabilité par projet/ressource */
 export interface IPlanningFiabilite {
     ID?: number;
@@ -63,6 +83,24 @@ export interface IPlanningFiabilite {
     Commentaire: string | null;
 }
 
+/** Ligne de mouvement équipe (absences + détachements NxFR) */
+export interface IMouvementEquipe {
+    ID?: number;
+    Year: number;
+    WeekNumber: number;
+    Categorie: MouvementCategorie;
+    Libelle: string;
+    NbMonteurs: number;
+    Commentaire: string | null;
+}
+
+export type MouvementCategorie =
+    | "Absence"
+    | "Formation"
+    | "CP_Estimation"
+    | "CP_Reel"
+    | "Detachement";
+
 /** Monteur Nexans (lecture seule) */
 export interface IMonteur {
     ID: number;
@@ -70,6 +108,37 @@ export interface IMonteur {
     Prenom: string;
     Equipe: string;
     Statut: "Actif" | "Inactif";
+    /** Email du monteur (colonne UserMail de la liste Monteurs) — clé de visibilité tablette */
+    UserMail?: string | null;
+}
+
+/** Ligne de la liste TabletteChantier (lecture + écriture via onSaveTabletteChantier) */
+export interface ITabletteChantier {
+    ID?: number;
+    Title: string;
+    ProjectUniqID: string;
+    /** Emails des monteurs affectés, séparés par ";" — pilote la visibilité du chantier sur tablette */
+    MonteurMail: string;
+    PM?: string | null;
+    Location?: string | null;
+    Status?: string | null;
+    Progress?: number | null;
+}
+
+/** Payload de rattachement d'un projet planning orphelin à une fiche chantier existante */
+export interface IRelinkPayload {
+    /** ProjectUniqID orphelin présent dans le planning */
+    oldProjectUniqID: string;
+    /** ProjectUniqID de la fiche chantier (source de vérité) que le planning adopte */
+    newProjectUniqID: string;
+    /** Titre de la fiche cible (confort côté Power Apps) */
+    newTitle: string;
+}
+
+/** Payload de création de fiche (redirect PageAvp côté Power Apps) */
+export interface ICreateProjectPayload {
+    ProjectUniqID: string;
+    Title: string;
 }
 
 // ============================================================
@@ -77,7 +146,7 @@ export interface IMonteur {
 // ============================================================
 
 export type PMCode = "JC" | "GP" | "DW" | "VB";
-export type ResourceType = "NxFR" | "HTB" | "SCLS";
+export type ResourceType = "NxFR" | "HTB" | "SCLS" | "NxsBe";
 export type FiabiliteLevel = "A+" | "A" | "A-" | "Refusé";
 export type PMFilter = "ALL" | PMCode | "HMC" | "ALL_HMC";
 
@@ -133,16 +202,29 @@ export interface IPlanningAppProps {
     ficheChantierData: IFicheChantier[];
     fiabiliteData: IPlanningFiabilite[];
     monteursData: IMonteur[];
+    mouvementData: IMouvementEquipe[];
     currentYear: number;
     currentWeek: number;
     userRole: "admin" | "viewer";
     selectedPMFilter: PMFilter;
     availableYears: number[];
     availablePMs: string[];
+    /** Affiche l'overlay de chargement (transition d'année / premier fetch) */
+    isLoading?: boolean;
     onSaveAffectation: (record: IPlanningAffectation) => void;
     onSaveCapacite: (record: IPlanningCapacite) => void;
     onSaveFiabilite: (record: IPlanningFiabilite) => void;
     onDeleteAffectation: (id: number) => void;
     onFilterChange: (filter: PMFilter) => void;
     onYearChange: (year: number) => void;
+    /** Attribue/modifie le PM d'un projet (utilisable par PM ET admin quand PM est vide) */
+    onSaveFicheChantier?: (record: IFicheChantier) => void;
+    /** Données TabletteChantier (visibilité tablette des chantiers) */
+    tabletteChantierData: ITabletteChantier[];
+    /** Sauvegarde (création ou mise à jour MonteurMail) d'une ligne TabletteChantier */
+    onSaveTabletteChantier?: (record: ITabletteChantier) => void;
+    /** Rattache un projet planning orphelin à une fiche chantier existante */
+    onRelinkProject?: (payload: IRelinkPayload) => void;
+    /** Demande la création de la fiche (redirect PageAvp côté Power Apps) */
+    onCreateProject?: (payload: ICreateProjectPayload) => void;
 }

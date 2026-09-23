@@ -1,86 +1,296 @@
 [
-    {
-        "ID": 1,
-        "ProjectUniqID": "proj-001",
-        "ResourceType": "NxFR",
-        "Fiabilite": "A+",
-        "Commentaire": "Validé"
-    },
-    {
-        "ID": 2,
-        "ProjectUniqID": "proj-002",
-        "ResourceType": "NxFR",
-        "Fiabilite": "A+",
-        "Commentaire": null
-    },
-    {
-        "ID": 3,
-        "ProjectUniqID": "proj-002",
-        "ResourceType": "HTB",
-        "Fiabilite": "A",
-        "Commentaire": "En attente validation HTB"
-    },
-    {
-        "ID": 4,
-        "ProjectUniqID": "proj-003",
-        "ResourceType": "NxFR",
-        "Fiabilite": "A+",
-        "Commentaire": null
-    },
-    {
-        "ID": 5,
-        "ProjectUniqID": "proj-003",
-        "ResourceType": "SCLS",
-        "Fiabilite": "A",
-        "Commentaire": "Validé par SCLS"
-    },
-    {
-        "ID": 6,
-        "ProjectUniqID": "proj-004",
-        "ResourceType": "NxFR",
-        "Fiabilite": "A",
-        "Commentaire": null
-    },
-    {
-        "ID": 7,
-        "ProjectUniqID": "proj-005",
-        "ResourceType": "NxFR",
-        "Fiabilite": "A+",
-        "Commentaire": null
-    },
-    {
-        "ID": 8,
-        "ProjectUniqID": "proj-005",
-        "ResourceType": "HTB",
-        "Fiabilite": "A-",
-        "Commentaire": "Risque de glissement"
-    },
-    {
-        "ID": 9,
-        "ProjectUniqID": "proj-006",
-        "ResourceType": "NxFR",
-        "Fiabilite": "A",
-        "Commentaire": null
-    },
-    {
-        "ID": 10,
-        "ProjectUniqID": "proj-007",
-        "ResourceType": "NxFR",
-        "Fiabilite": "A+",
-        "Commentaire": "Validé"
-    },
-    {
-        "ID": 11,
-        "ProjectUniqID": "proj-008",
-        "ResourceType": "NxFR",
-        "Fiabilite": "A-",
-        "Commentaire": "Budget en discussion"
-    },
-    {
-        "ID": 12,
-        "ProjectUniqID": "proj-009",
-        "ResourceType": "NxFR",
-        "Fiabilite": "Refusé",
-        "Commentaire": "Non confirmé par Elia"
-    }
+  {
+    "ID": 1,
+    "ProjectUniqID": "55584a9e-4beb-5d6f-b6d6-fab75ce02790",
+    "ResourceType": "HTB",
+    "Fiabilite": "A",
+    "Commentaire": null
+  },
+  {
+    "ID": 2,
+    "ProjectUniqID": "49526e8e-cf00-5ff5-a4a5-886970296caa",
+    "ResourceType": "HTB",
+    "Fiabilite": "A+",
+    "Commentaire": null
+  },
+  {
+    "ID": 3,
+    "ProjectUniqID": "54c433b2-eacd-42b2-89d8-eaf26a3d9468",
+    "ResourceType": "HTB",
+    "Fiabilite": "A",
+    "Commentaire": null
+  },
+  {
+    "ID": 4,
+    "ProjectUniqID": "ff662936-77ba-5700-a70c-a8529e50fe47",
+    "ResourceType": "HTB",
+    "Fiabilite": "A",
+    "Commentaire": null
+  },
+  {
+    "ID": 5,
+    "ProjectUniqID": "ed68c54b-6b66-52cc-88ae-08b5d473792e",
+    "ResourceType": "HTB",
+    "Fiabilite": "A+",
+    "Commentaire": null
+  },
+  {
+    "ID": 6,
+    "ProjectUniqID": "25aaad81-406b-56b0-8ee3-214998f911f7",
+    "ResourceType": "HTB",
+    "Fiabilite": "A",
+    "Commentaire": null
+  },
+  {
+    "ID": 7,
+    "ProjectUniqID": "341f7f85-05ad-491a-8b96-be543a179bc4",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A+",
+    "Commentaire": null
+  },
+  {
+    "ID": 8,
+    "ProjectUniqID": "2c23ae95-0392-5033-a2c0-72f8a2f13a72",
+    "ResourceType": "HTB",
+    "Fiabilite": "A-",
+    "Commentaire": null
+  },
+  {
+    "ID": 9,
+    "ProjectUniqID": "ad00ad5f-0d4a-59b5-9718-7da57e0bb750",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A+",
+    "Commentaire": null
+  },
+  {
+    "ID": 10,
+    "ProjectUniqID": "ac9fd0fb-1b76-57d8-b3f1-65c3f52da893",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A+",
+    "Commentaire": null
+  },
+  {
+    "ID": 11,
+    "ProjectUniqID": "63f4b213-ef50-58a0-bc85-648a26988582",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A+",
+    "Commentaire": null
+  },
+  {
+    "ID": 12,
+    "ProjectUniqID": "d585de7a-379d-5c94-bbfb-a617e017e9a8",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A+",
+    "Commentaire": null
+  },
+  {
+    "ID": 13,
+    "ProjectUniqID": "a176048b-91c8-5d8d-b30a-ad94952cbffc",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A+",
+    "Commentaire": null
+  },
+  {
+    "ID": 14,
+    "ProjectUniqID": "2021f264-113a-57e5-b269-304ca44ba061",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A+",
+    "Commentaire": null
+  },
+  {
+    "ID": 15,
+    "ProjectUniqID": "6bafe8e2-b2f9-5090-9a7e-d28d0ec6336d",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A+",
+    "Commentaire": null
+  },
+  {
+    "ID": 16,
+    "ProjectUniqID": "792319de-ede0-5442-8837-014db4523ef1",
+    "ResourceType": "NxsBe",
+    "Fiabilite": "A",
+    "Commentaire": null
+  },
+  {
+    "ID": 17,
+    "ProjectUniqID": "da82522b-d1b6-44da-8e92-3c06b4ec1c2e",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A-",
+    "Commentaire": null
+  },
+  {
+    "ID": 18,
+    "ProjectUniqID": "3a01a483-fda2-452f-bd2c-ae8971d5eb27",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A",
+    "Commentaire": null
+  },
+  {
+    "ID": 19,
+    "ProjectUniqID": "f1761c2d-0fa9-4f87-8a17-b59720252d93",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A",
+    "Commentaire": null
+  },
+  {
+    "ID": 20,
+    "ProjectUniqID": "639dd8ba-4b45-4bdc-923b-c866d1d57f2b",
+    "ResourceType": "HTB",
+    "Fiabilite": "A",
+    "Commentaire": null
+  },
+  {
+    "ID": 21,
+    "ProjectUniqID": "82e1759f-7bec-5d67-a88f-479c28f698a7",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A",
+    "Commentaire": null
+  },
+  {
+    "ID": 22,
+    "ProjectUniqID": "59e768da-0ef6-5b1f-a08b-05e0f0814d09",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A",
+    "Commentaire": null
+  },
+  {
+    "ID": 23,
+    "ProjectUniqID": "f90df86f-bbc3-49e2-9c7f-b16e17c281a9",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A-",
+    "Commentaire": null
+  },
+  {
+    "ID": 24,
+    "ProjectUniqID": "72c1d504-6067-4ac0-9e04-988c8e6003f5",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A-",
+    "Commentaire": null
+  },
+  {
+    "ID": 25,
+    "ProjectUniqID": "35bbc8cf-85a0-4e87-a67b-580a3c58e88e",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A-",
+    "Commentaire": null
+  },
+  {
+    "ID": 26,
+    "ProjectUniqID": "04f71b02-8919-541a-a206-8282e05d22f3",
+    "ResourceType": "HTB",
+    "Fiabilite": "A",
+    "Commentaire": null
+  },
+  {
+    "ID": 27,
+    "ProjectUniqID": "5dc0ce0a-24ff-4cc8-9848-2122141f9f3e",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A",
+    "Commentaire": null
+  },
+  {
+    "ID": 28,
+    "ProjectUniqID": "6a3d99d8-9ec8-41ae-b6b1-805164cde88a",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A+",
+    "Commentaire": null
+  },
+  {
+    "ID": 29,
+    "ProjectUniqID": "fa82e1cc-27f6-41e8-960d-1472cd5a2775",
+    "ResourceType": "HTB",
+    "Fiabilite": "A+",
+    "Commentaire": null
+  },
+  {
+    "ID": 30,
+    "ProjectUniqID": "bb0ff0d2-adfb-5d40-a40d-4f89662d601d",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A-",
+    "Commentaire": null
+  },
+  {
+    "ID": 31,
+    "ProjectUniqID": "1214f931-5dd7-5855-9e2a-22ff51f47e24",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A",
+    "Commentaire": null
+  },
+  {
+    "ID": 32,
+    "ProjectUniqID": "5e8a5820-ba45-42e7-b9e0-2e12421b268e",
+    "ResourceType": "HTB",
+    "Fiabilite": "A-",
+    "Commentaire": null
+  },
+  {
+    "ID": 33,
+    "ProjectUniqID": "0f209c18-fd24-44ba-a752-b6d82e92d117",
+    "ResourceType": "HTB",
+    "Fiabilite": "A",
+    "Commentaire": null
+  },
+  {
+    "ID": 34,
+    "ProjectUniqID": "696fbcb2-2c04-4bdc-8f98-2485f174bee5",
+    "ResourceType": "HTB",
+    "Fiabilite": "A-",
+    "Commentaire": null
+  },
+  {
+    "ID": 35,
+    "ProjectUniqID": "72195406-ed04-537f-b4ee-542f104a3640",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A-",
+    "Commentaire": null
+  },
+  {
+    "ID": 36,
+    "ProjectUniqID": "9be65d1d-daa5-5b71-a831-5f1749f2078d",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A",
+    "Commentaire": null
+  },
+  {
+    "ID": 37,
+    "ProjectUniqID": "87e78439-787f-53ee-aa01-5d6518e8e30b",
+    "ResourceType": "HTB",
+    "Fiabilite": "A-",
+    "Commentaire": null
+  },
+  {
+    "ID": 38,
+    "ProjectUniqID": "e8bbd005-717c-5d49-8f03-d3f195bf43b3",
+    "ResourceType": "HTB",
+    "Fiabilite": "A+",
+    "Commentaire": null
+  },
+  {
+    "ID": 39,
+    "ProjectUniqID": "c8e89f30-5cc9-571d-afbb-cdec7c95289f",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A+",
+    "Commentaire": null
+  },
+  {
+    "ID": 40,
+    "ProjectUniqID": "e1c72e50-a723-5d17-b996-51756bdfe60d",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A+",
+    "Commentaire": null
+  },
+  {
+    "ID": 41,
+    "ProjectUniqID": "2498c089-7ccf-52ff-b1a6-daec51eb81c0",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A+",
+    "Commentaire": null
+  },
+  {
+    "ID": 42,
+    "ProjectUniqID": "c3acf6e3-c53f-48c4-a187-448ee5e9ee37",
+    "ResourceType": "SCLS",
+    "Fiabilite": "A-",
+    "Commentaire": null
+  }
 ]
